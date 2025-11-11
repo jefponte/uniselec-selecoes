@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: uniselec-selecoes
+  # namespace será definido pelo kustomization.yaml
+  annotations:
+    haproxy.org/ssl-certificate: "/etc/haproxy/certs/tls.pem"
+    haproxy.org/check: "true"
+    haproxy.org/forwarded-for: "true"
+    haproxy.org/load-balance: "roundrobin"
+    haproxy.org/proxy-body-size: "0"
+    haproxy.org/ssl-redirect: "true"
+    haproxy.org/websocket: "true"
+spec:
+  defaultBackend:
+    service:
+      name: default-http-backend
+      port:
+        number: 80
+  rules:
+  - host: selecoes-staging.unilab.edu.br  # Será sobrescrito pelos overlays
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: uniselec-selecoes
+            port:
+              number: 80

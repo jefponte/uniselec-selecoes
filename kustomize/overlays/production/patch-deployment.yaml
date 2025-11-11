@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: uniselec-selecoes
+spec:
+  replicas: 4  # réplicas para produção
+  template:
+    metadata:
+      labels:
+        environment: production
+    spec:
+      containers:
+        - name: uniselec-selecoes
+          # IMPORTANTE: A tag da imagem será gerenciada pelo kustomization.yaml
+          # usando a seção 'images:', NÃO defina a imagem aqui
+          resources:
+            requests:
+              cpu: 200m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi

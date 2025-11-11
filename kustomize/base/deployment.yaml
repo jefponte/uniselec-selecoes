@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: uniselec-selecoes
+  # namespace será definido pelo kustomization.yaml
+  labels:
+    app: uniselec-selecoes
+spec:
+  selector:
+    matchLabels:
+      app: uniselec-selecoes
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: uniselec-selecoes
+    spec:
+      containers:
+      - name: uniselec-selecoes
+        image: dti-registro.unilab.edu.br/unilab/uniselec-selecoes:latest
+        imagePullPolicy: Always
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 250m
+            memory: 256Mi
+        ports:
+        - containerPort: 8080
+          name: uniselec-selecoes
+        envFrom:
+        - configMapRef:
+            name: uniselec-selecoes-config
+        env:
+        - name: TZ
+          value: "America/Fortaleza"
+        - name: KUBERNETES_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: KUBERNETES_POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: KUBERNETES_CONTAINER_CPU_LIMIT
+          valueFrom:
+            resourceFieldRef:
+              containerName: uniselec-selecoes
+              resource: limits.cpu
+              divisor: 1m
+        - name: KUBERNETES_CONTAINER_MEMORY_LIMIT
+          valueFrom:
+            resourceFieldRef:
+              containerName: uniselec-selecoes
+              resource: limits.memory
+        volumeMounts:
+        - name: localtime
+          mountPath: /etc/localtime
+          readOnly: true
+        - name: timezone
+          mountPath: /etc/timezone
+          readOnly: true
+        - name: env-volume
+          mountPath: /app/.env
+          subPath: .env
+      volumes:
+      - name: localtime
+        hostPath:
+          path: /usr/share/zoneinfo/America/Fortaleza
+          type: File
+      - name: timezone
+        hostPath:
+          path: /etc/timezone
+          type: File
+      - name: env-volume
+        configMap:
+          name: uniselec-selecoes-config
+          items:
+            - key: .env
+              path: .env
+      imagePullSecrets:
+      - name: regcred
