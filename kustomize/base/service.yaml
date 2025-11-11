@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: uniselec-selecoes
+  name: selecoes
   # namespace será definido pelo kustomization.yaml
   annotations:
     metallb.universe.tf/address-pool: int-pool
 spec:
   selector:
-    app: uniselec-selecoes
+    app: selecoes
   type: LoadBalancer
   externalTrafficPolicy: Local
   sessionAffinity: None
@@ -15,7 +15,7 @@ spec:
     clientIP:
       timeoutSeconds: 10800
   ports:
-  - name: uniselec-selecoes
+  - name: selecoes
     protocol: TCP
     port: 80
     targetPort: 8080
@@ -30,4 +30,4 @@ spec:
   - port: 80
     targetPort: 80
   selector:
-    app: uniselec-selecoes
+    app: selecoes

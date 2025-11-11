@@ -1,7 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: uniselec-selecoes
+  name: selecoes
 spec:
   rules:
     - host: selecoes-staging.unilab.edu.br  # Host de staging
@@ -11,6 +11,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: uniselec-selecoes
+                name: selecoes
                 port:
                   number: 80
