@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: uniselec-selecoes-prd
+  labels:
+    environment: production
+    app: uniselec-selecoes

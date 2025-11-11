@@ -1,24 +1,16 @@
 version: '3.8'
 
 services:
-  react-app-client:
+  uniselec-selecoes:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: react_dev
+      args:
+        VERSION: "1.0.0"
+        COMMIT_SHA: "${COMMIT_SHA}"
+    container_name: uniselec-selecoes
     ports:
-      - "5175:5173"
-    volumes:
-      - .:/app
-      - /app/node_modules
+      - "8088:80"
     environment:
-      - NODE_ENV=development
-    networks:
-      - shared-network-uniselec
+      NODE_ENV: production
     restart: unless-stopped
-    command: yarn dev --host
-
-
-networks:
-  shared-network-uniselec:
-    external: true

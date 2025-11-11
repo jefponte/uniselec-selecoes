@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: uniselec-selecoes-config
+  # namespace será definido pelo kustomization.yaml
+data:
+  .env: |
+    MESSAGE="Manutenção! Aguarde, estamos melhorando o serviço."
+    LOG_LEVEL="info"
