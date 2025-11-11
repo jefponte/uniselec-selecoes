@@ -1,7 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: uniselec-selecoes
+  name: selecoes
   # namespace será definido pelo kustomization.yaml
   annotations:
     haproxy.org/ssl-certificate: "/etc/haproxy/certs/tls.pem"
@@ -25,6 +25,6 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: uniselec-selecoes
+            name: selecoes
             port:
               number: 80

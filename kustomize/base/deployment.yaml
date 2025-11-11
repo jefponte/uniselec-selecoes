@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: uniselec-selecoes
+  name: selecoes
   # namespace será definido pelo kustomization.yaml
   labels:
-    app: uniselec-selecoes
+    app: selecoes
 spec:
   selector:
     matchLabels:
-      app: uniselec-selecoes
+      app: selecoes
   replicas: 1
   template:
     metadata:
       labels:
-        app: uniselec-selecoes
+        app: selecoes
     spec:
       containers:
-      - name: uniselec-selecoes
-        image: dti-registro.unilab.edu.br/unilab/uniselec-selecoes:latest
+      - name: selecoes
+        image: dti-registro.unilab.edu.br/unilab/selecoes:latest
         imagePullPolicy: Always
         resources:
           requests:
@@ -28,10 +28,10 @@ spec:
             memory: 256Mi
         ports:
         - containerPort: 8080
-          name: uniselec-selecoes
+          name: selecoes
         envFrom:
         - configMapRef:
-            name: uniselec-selecoes-config
+            name: selecoes-config
         env:
         - name: TZ
           value: "America/Fortaleza"
@@ -46,13 +46,13 @@ spec:
         - name: KUBERNETES_CONTAINER_CPU_LIMIT
           valueFrom:
             resourceFieldRef:
-              containerName: uniselec-selecoes
+              containerName: selecoes
               resource: limits.cpu
               divisor: 1m
         - name: KUBERNETES_CONTAINER_MEMORY_LIMIT
           valueFrom:
             resourceFieldRef:
-              containerName: uniselec-selecoes
+              containerName: selecoes
               resource: limits.memory
         volumeMounts:
         - name: localtime
@@ -75,7 +75,7 @@ spec:
           type: File
       - name: env-volume
         configMap:
-          name: uniselec-selecoes-config
+          name: selecoes-config
           items:
             - key: .env
               path: .env

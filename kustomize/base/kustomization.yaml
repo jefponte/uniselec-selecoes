@@ -2,7 +2,7 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 # Namespace padrão (será sobrescrito pelos overlays)
-namespace: uniselec-selecoes
+namespace: selecoes
 
 resources:
   - configmap.yaml
@@ -16,10 +16,10 @@ resources:
 #   --docker-server=dti-registro.unilab.edu.br \
 #   --docker-username=desenvolvedor \
 #   --docker-password='SENHA' \
-#   -n uniselec-selecoes-stg
+#   -n selecoes-stg
 #
 # kubectl create secret docker-registry regcred \
 #   --docker-server=dti-registro.unilab.edu.br \
 #   --docker-username=desenvolvedor \
 #   --docker-password='SENHA' \
-#   -n uniselec-selecoes-prd
+#   -n selecoes-prd

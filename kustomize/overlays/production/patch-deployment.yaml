@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: uniselec-selecoes
+  name: selecoes
 spec:
   replicas: 4  # réplicas para produção
   template:
@@ -10,7 +10,7 @@ spec:
         environment: production
     spec:
       containers:
-        - name: uniselec-selecoes
+        - name: selecoes
           # IMPORTANTE: A tag da imagem será gerenciada pelo kustomization.yaml
           # usando a seção 'images:', NÃO defina a imagem aqui
           resources:
