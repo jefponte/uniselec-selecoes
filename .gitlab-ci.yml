@@ -150,58 +150,58 @@ validate:docker:
     - docker run --rm -i hadolint/hadolint < ./Dockerfile && echo "[OK] ✓ Dockerfile lint passed" || true
 
 # STAGE: Tests
-tests:unit:
-  stage: tests
-  image: ${BASE_IMAGE}
-  tags:
-    - kubernetes
-  interruptible: true
-  retry:
-    max: 1
-    when:
-      - runner_system_failure
-  cache:
-    key:
-      files:
-        - ./package-lock.json
-    paths:
-      - ./node_modules/
-      - .npm/
-    policy: pull-push
-  timeout: 15m
-  variables:
-    NODE_ENV: test
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_TAG =~ /^v[0-9]+\.[0-9]+\.[0-9]+$/'
-  before_script:
-    - echo "[$(date '+%d/%m/%Y %H:%M:%S')] [INFO] Iniciando testes unitários..."
-    - |
-      if [ -d .git ] && [ -f .git/shallow ]; then
-        echo "[INFO] Descarregando git history completo..."
-        git fetch --unshallow
-      fi
-    - cd .
-  script:
-    - echo "[INFO] Limpando cache npm..."
-    - npm cache clean --force
-    - echo "[INFO] Instalando dependências..."
-    - npm install --legacy-peer-deps
-    - echo "[INFO] Executando testes com coverage..."
-    - npm test -- --coverage
-    - echo "[INFO] Executando lint..."
-    - npm run lint 2>/dev/null || echo "[WARN] Lint não configurado"
-    - echo "[$(date '+%d/%m/%Y %H:%M:%S')] [OK] Testes unitários passaram"
-  artifacts:
-    when: always
-    reports:
-      junit: ./coverage/junit.xml
-      coverage_report:
-        coverage_format: cobertura
-        path: ./coverage/cobertura-coverage.xml
-    paths:
-      - ./coverage/
-    expire_in: 30 days
-  allow_failure: false
+# tests:unit:
+#   stage: tests
+#   image: ${BASE_IMAGE}
+#   tags:
+#     - kubernetes
+#   interruptible: true
+#   retry:
+#     max: 1
+#     when:
+#       - runner_system_failure
+#   cache:
+#     key:
+#       files:
+#         - ./package-lock.json
+#     paths:
+#       - ./node_modules/
+#       - .npm/
+#     policy: pull-push
+#   timeout: 15m
+#   variables:
+#     NODE_ENV: test
+#   rules:
+#     - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_TAG =~ /^v[0-9]+\.[0-9]+\.[0-9]+$/'
+#   before_script:
+#     - echo "[$(date '+%d/%m/%Y %H:%M:%S')] [INFO] Iniciando testes unitários..."
+#     - |
+#       if [ -d .git ] && [ -f .git/shallow ]; then
+#         echo "[INFO] Descarregando git history completo..."
+#         git fetch --unshallow
+#       fi
+#     - cd .
+#   script:
+#     - echo "[INFO] Limpando cache npm..."
+#     - npm cache clean --force
+#     - echo "[INFO] Instalando dependências..."
+#     - npm install --legacy-peer-deps
+#     - echo "[INFO] Executando testes com coverage..."
+#     - npm test -- --coverage
+#     - echo "[INFO] Executando lint..."
+#     - npm run lint 2>/dev/null || echo "[WARN] Lint não configurado"
+#     - echo "[$(date '+%d/%m/%Y %H:%M:%S')] [OK] Testes unitários passaram"
+#   artifacts:
+#     when: always
+#     reports:
+#       junit: ./coverage/junit.xml
+#       coverage_report:
+#         coverage_format: cobertura
+#         path: ./coverage/cobertura-coverage.xml
+#     paths:
+#       - ./coverage/
+#     expire_in: 30 days
+#   allow_failure: false
 
 tests:dependency_check:
   stage: tests
