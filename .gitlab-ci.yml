@@ -187,7 +187,7 @@ tests:unit:
     - echo "[INFO] Instalando dependências..."
     - npm install --legacy-peer-deps
     - echo "[INFO] Executando testes com coverage..."
-    - npm test -- --coverage --watchAll=false
+    - npm test -- --coverage
     - echo "[INFO] Executando lint..."
     - npm run lint 2>/dev/null || echo "[WARN] Lint não configurado"
     - echo "[$(date '+%d/%m/%Y %H:%M:%S')] [OK] Testes unitários passaram"
