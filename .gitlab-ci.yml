@@ -407,10 +407,9 @@ staging:deploy:
   before_script:
     - echo "[$(date '+%d/%m/%Y %H:%M:%S')] [INFO] GitOps Staging Deploy - ArgoCD"
     - echo "[INFO] Branch ${CI_COMMIT_BRANCH} | Commit ${CI_COMMIT_SHORT_SHA}"
-    - echo "[INFO] Usando imagem: ${DOCKER_IMAGE}:latest"
   script:
     # Atualizar Image Tag no Git (GitOps)
-    - echo "[INFO] ETAPA 1 - Atualizar Image Tag no Git (STAGING: latest)"
+    - echo "[INFO] ETAPA 1 - Atualizar Image Tag latest no Git"
     - cd ${CI_PROJECT_DIR}/${KUSTOMIZE_PATH}
     - kustomize edit set image ${DOCKER_IMAGE}:latest
     - |
@@ -734,10 +733,10 @@ production:deploy:
   before_script:
     - echo "[$(date '+%d/%m/%Y %H:%M:%S')] [INFO] GitOps Production Deploy - ArgoCD"
     - echo "[INFO] Release ${CI_COMMIT_TAG} | Branch ${CI_COMMIT_BRANCH}"
-    - echo "[INFO] Usando imagem: ${DOCKER_IMAGE}:${CI_COMMIT_TAG}"
+    - echo "[INFO] Usando tag ${CI_COMMIT_TAG} na imagem"
   script:
     # Atualizar Image Tag no Git (GitOps
-    - echo "[INFO] ETAPA 1 - Atualizar Image Tag no Git (PRODUCTION: ${CI_COMMIT_TAG})"
+    - echo "[INFO] ETAPA 1 - Atualizar Image Tag ${CI_COMMIT_TAG}no Git"
     - cd ${CI_PROJECT_DIR}/${KUSTOMIZE_PATH}
     - kustomize edit set image ${DOCKER_IMAGE}:${CI_COMMIT_TAG}
     - |
