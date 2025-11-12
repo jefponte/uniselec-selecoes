@@ -11,11 +11,6 @@ metadata:
     haproxy.org/ssl-redirect: "true"
     haproxy.org/websocket: "true"
 spec:
-  defaultBackend:
-    service:
-      name: default-http-backend
-      port:
-        number: 80
   rules:
   - host: selecoes-staging.unilab.edu.br
     http:
