@@ -2,9 +2,8 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: selecoes
-  # namespace será definido pelo kustomization.yaml
   annotations:
-    haproxy.org/ssl-certificate: "/etc/haproxy/certs/tls.pem"
+    kubernetes.io/ingress.class: "haproxy"
     haproxy.org/check: "true"
     haproxy.org/forwarded-for: "true"
     haproxy.org/load-balance: "roundrobin"
@@ -18,7 +17,7 @@ spec:
       port:
         number: 80
   rules:
-  - host: selecoes-staging.unilab.edu.br  # Será sobrescrito pelos overlays
+  - host: selecoes-staging.unilab.edu.br
     http:
       paths:
       - path: /
