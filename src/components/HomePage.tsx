@@ -35,7 +35,7 @@ export const HomePage: React.FC = () => (
       align="center"
       sx={{ fontWeight: 700, mb: 2 }}
     >
-      Portal Seleções
+      Portal Seleções.
     </Typography>
     <Typography
       variant="h6"
