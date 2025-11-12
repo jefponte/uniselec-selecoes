@@ -2,12 +2,15 @@ apiVersion: v1
 kind: Service
 metadata:
   name: selecoes
+  labels:
+    app: selecoes
 spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 80
   selector:
     app: selecoes
-  type: NodePort
-  ports:
-    - name: selecoes
-      protocol: TCP
-      port: 80
-      targetPort: 80
+
