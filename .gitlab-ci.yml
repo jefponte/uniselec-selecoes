@@ -323,34 +323,61 @@ build:docker:
   script:
     - echo "[INFO] Pull da imagem base (cache)..."
     - docker pull ${DOCKER_IMAGE}:latest || echo "[WARN] Cache não encontrado"
+
+    # Definir tags dinamicamente baseado no contexto
+    - |
+      if [[ -n "${CI_COMMIT_TAG}" ]]; then
+        # SE TEM TAG: build com tag específica E latest
+        DOCKER_TAGS="--tag ${DOCKER_IMAGE}:${CI_COMMIT_TAG} --tag ${DOCKER_IMAGE}:latest --tag ${DOCKER_IMAGE}:${CI_COMMIT_SHORT_SHA}"
+        echo "[INFO] Build para RELEASE: ${CI_COMMIT_TAG} + latest"
+      else
+        # SE NÃO TEM TAG: build apenas com latest (staging)
+        DOCKER_TAGS="--tag ${DOCKER_IMAGE}:latest --tag ${DOCKER_IMAGE}:${CI_COMMIT_SHORT_SHA}"
+        echo "[INFO] Build para STAGING: latest"
+      fi
+
     - echo "[INFO] Build da imagem Docker..."
     - |
       docker build \
         --cache-from=${DOCKER_IMAGE}:latest \
-        --tag ${DOCKER_IMAGE}:latest \
-        --tag ${DOCKER_IMAGE}:${CI_COMMIT_SHORT_SHA} \
+        ${DOCKER_TAGS} \
         --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') \
         --build-arg VCS_REF=${CI_COMMIT_SHA} \
         --build-arg VERSION=${CI_COMMIT_TAG:-${CI_COMMIT_SHORT_SHA}} \
         .
+
     - echo "[INFO] Scanning de vulnerabilidades..."
     - trivy image --severity HIGH,CRITICAL ${DOCKER_IMAGE}:latest || true
+
     - echo "[INFO] Push para Harbor registry..."
-    - docker push ${DOCKER_IMAGE}:latest
-    - docker push ${DOCKER_IMAGE}:${CI_COMMIT_SHORT_SHA}
+
+    # Push dinâmico baseado no contexto
     - |
       if [[ -n "${CI_COMMIT_TAG}" ]]; then
-        echo "[INFO] Taggeando imagem com versão ${CI_COMMIT_TAG}..."
-        docker tag ${DOCKER_IMAGE}:latest ${DOCKER_IMAGE}:${CI_COMMIT_TAG}
+        # PUSH PARA RELEASE: todas as tags
+        echo "[INFO] Push para RELEASE: ${CI_COMMIT_TAG}, latest, ${CI_COMMIT_SHORT_SHA}"
         docker push ${DOCKER_IMAGE}:${CI_COMMIT_TAG}
-        echo "[OK] ✓ Imagem ${DOCKER_IMAGE}:${CI_COMMIT_TAG} pushed"
+        docker push ${DOCKER_IMAGE}:latest
+        docker push ${DOCKER_IMAGE}:${CI_COMMIT_SHORT_SHA}
+        echo "[OK] ✓ Imagens pushed: ${CI_COMMIT_TAG}, latest, ${CI_COMMIT_SHORT_SHA}"
+      else
+        # PUSH PARA STAGING: apenas latest e commit SHA
+        echo "[INFO] Push para STAGING: latest, ${CI_COMMIT_SHORT_SHA}"
+        docker push ${DOCKER_IMAGE}:latest
+        docker push ${DOCKER_IMAGE}:${CI_COMMIT_SHORT_SHA}
+        echo "[OK] ✓ Imagens pushed: latest, ${CI_COMMIT_SHORT_SHA}"
       fi
-    - echo "[$(date '+%d/%m/%Y %H:%M:%S')] [OK] Image pushed"
-    - echo "  • ${DOCKER_IMAGE}:latest"
-    - echo "  • ${DOCKER_IMAGE}:${CI_COMMIT_SHORT_SHA}"
+
+    - echo "[$(date '+%d/%m/%Y %H:%M:%S')] [OK] Image build e push concluídos"
+    - echo "Tags criadas:"
     - |
       if [[ -n "${CI_COMMIT_TAG}" ]]; then
-        echo "  • ${DOCKER_IMAGE}:${CI_COMMIT_TAG}"
+        echo "  • ${DOCKER_IMAGE}:${CI_COMMIT_TAG} (PRODUCTION)"
+        echo "  • ${DOCKER_IMAGE}:latest (STAGING/PRODUCTION)"
+        echo "  • ${DOCKER_IMAGE}:${CI_COMMIT_SHORT_SHA}"
+      else
+        echo "  • ${DOCKER_IMAGE}:latest (STAGING)"
+        echo "  • ${DOCKER_IMAGE}:${CI_COMMIT_SHORT_SHA}"
       fi
   after_script:
     - echo "[INFO] Limpando credenciais..."
@@ -380,9 +407,10 @@ staging:deploy:
   before_script:
     - echo "[$(date '+%d/%m/%Y %H:%M:%S')] [INFO] GitOps Staging Deploy - ArgoCD"
     - echo "[INFO] Branch ${CI_COMMIT_BRANCH} | Commit ${CI_COMMIT_SHORT_SHA}"
+    - echo "[INFO] Usando imagem: ${DOCKER_IMAGE}:latest"
   script:
     # Atualizar Image Tag no Git (GitOps)
-    - echo "[INFO] ETAPA 1 - Atualizar Image Tag no Git"
+    - echo "[INFO] ETAPA 1 - Atualizar Image Tag no Git (STAGING: latest)"
     - cd ${CI_PROJECT_DIR}/${KUSTOMIZE_PATH}
     - kustomize edit set image ${DOCKER_IMAGE}:latest
     - |
@@ -396,7 +424,7 @@ staging:deploy:
         git config user.email "${GIT_AUTHOR_EMAIL}"
         git config user.name "${GIT_AUTHOR_NAME}"
         git add kustomization.yaml
-        git commit -m "ci: update ${DEPLOY_ENV} image to ${CI_COMMIT_SHORT_SHA} [skip ci]"
+        git commit -m "ci: update ${DEPLOY_ENV} image to latest [skip ci]"
 
         echo "[INFO] Fazendo fetch do remote..."
         git fetch https://${TOKEN_PAT_NAME}:${TOKEN_PAT_ACCESS}@${REPO_DOMAIN}/${REPO_PATH}.git ${GIT_BRANCH}
@@ -573,29 +601,38 @@ staging:deploy:
         exit 1
       fi
 
-      echo "[INFO] Aguardando sync e health da application..."
+      echo "[INFO] Aguardando sync da application..."
       argocd app wait ${APP_NAME}-stg \
         --server ${ARGOCD_SERVER} \
         --grpc-web \
-        --health \
         --timeout ${ARGOCD_TIMEOUT} 2>&1 | tee /tmp/app-wait.log || {
           echo "[WARN] ⚠ Timeout ao aguardar sync (verificar ArgoCD UI)"
       }
 
+      # Verificar status do health check do Ingress
       APP_STATUS=$(kubectl get application ${APP_NAME}-stg -n argocd -o jsonpath='{.status.health.status}' 2>/dev/null || echo "Unknown")
       SYNC_STATUS=$(kubectl get application ${APP_NAME}-stg -n argocd -o jsonpath='{.status.sync.status}' 2>/dev/null || echo "Unknown")
 
-      echo "[INFO] Application Status:"
+      echo "[INFO] Application Status Final:"
       echo "  • Health: ${APP_STATUS}"
       echo "  • Sync: ${SYNC_STATUS}"
 
-      if [[ "${APP_STATUS}" == "Healthy" ]] && [[ "${SYNC_STATUS}" == "Synced" ]]; then
-        echo "[OK] Application está Healthy e Synced"
+      if [[ "${SYNC_STATUS}" == "Synced" ]]; then
+        echo "[SUCCESS] Deploy concluído - Application sincronizada"
+        if [[ "${APP_STATUS}" == "Healthy" ]]; then
+          echo "[SUCCESS] Todos os recursos healthy"
+        elif [[ "${APP_STATUS}" == "Progressing" ]]; then
+          echo "[WARNING] ⚠ Alguns recursos em Progressing (normal para HAProxy Ingress)"
+          echo "[INFO] O Ingress com HAProxy pode permanecer em Progressing devido ao health check externo"
+        else
+          echo "[WARNING] ⚠ Health status: ${APP_STATUS} - Verificar detalhes no ArgoCD UI"
+        fi
       else
-        echo "[WARN] ⚠ Application ainda não está completamente healthy"
+        echo "[ERROR] Application não sincronizada - Verificar logs do ArgoCD"
+        exit 1
       fi
 
-    - echo "Finalizado o deploy."
+    - echo "[$(date '+%d/%m/%Y %H:%M:%S')] [OK] Deploy staging finalizado"
 
   after_script:
     - echo "[INFO] Limpando recursos temporários..."
@@ -697,9 +734,10 @@ production:deploy:
   before_script:
     - echo "[$(date '+%d/%m/%Y %H:%M:%S')] [INFO] GitOps Production Deploy - ArgoCD"
     - echo "[INFO] Release ${CI_COMMIT_TAG} | Branch ${CI_COMMIT_BRANCH}"
+    - echo "[INFO] Usando imagem: ${DOCKER_IMAGE}:${CI_COMMIT_TAG}"
   script:
-    # Atualizar Image Tag no Git (GitOps)
-    - echo "[INFO] ETAPA 1 - Atualizar Image Tag no Git"
+    # Atualizar Image Tag no Git (GitOps
+    - echo "[INFO] ETAPA 1 - Atualizar Image Tag no Git (PRODUCTION: ${CI_COMMIT_TAG})"
     - cd ${CI_PROJECT_DIR}/${KUSTOMIZE_PATH}
     - kustomize edit set image ${DOCKER_IMAGE}:${CI_COMMIT_TAG}
     - |
@@ -886,29 +924,38 @@ production:deploy:
         exit 1
       fi
 
-      echo "[INFO] Aguardando sync e health da application..."
+      echo "[INFO] Aguardando sync da application..."
       argocd app wait ${APP_NAME}-prd \
         --server ${ARGOCD_SERVER} \
         --grpc-web \
-        --health \
         --timeout ${ARGOCD_TIMEOUT} 2>&1 | tee /tmp/app-wait.log || {
           echo "[WARN] ⚠ Timeout ao aguardar sync (verificar ArgoCD UI)"
       }
 
+      # Verificar status do health check do Ingress
       APP_STATUS=$(kubectl get application ${APP_NAME}-prd -n argocd -o jsonpath='{.status.health.status}' 2>/dev/null || echo "Unknown")
       SYNC_STATUS=$(kubectl get application ${APP_NAME}-prd -n argocd -o jsonpath='{.status.sync.status}' 2>/dev/null || echo "Unknown")
 
-      echo "[INFO] Application Status:"
+      echo "[INFO] Application Status Final:"
       echo "  • Health: ${APP_STATUS}"
       echo "  • Sync: ${SYNC_STATUS}"
 
-      if [[ "${APP_STATUS}" == "Healthy" ]] && [[ "${SYNC_STATUS}" == "Synced" ]]; then
-        echo "[OK] Application está Healthy e Synced"
+      if [[ "${SYNC_STATUS}" == "Synced" ]]; then
+        echo "[SUCCESS] Deploy production concluído - Application sincronizada"
+        if [[ "${APP_STATUS}" == "Healthy" ]]; then
+          echo "[SUCCESS] Todos os recursos healthy"
+        elif [[ "${APP_STATUS}" == "Progressing" ]]; then
+          echo "[WARNING] ⚠ Alguns recursos em Progressing (normal para HAProxy Ingress)"
+          echo "[INFO] O Ingress com HAProxy pode permanecer em Progressing devido ao health check externo"
+        else
+          echo "[WARNING] ⚠ Health status: ${APP_STATUS} - Verificar detalhes no ArgoCD UI"
+        fi
       else
-        echo "[WARN] ⚠ Application ainda não está completamente healthy"
+        echo "[ERROR] Application não sincronizada - Verificar logs do ArgoCD"
+        exit 1
       fi
 
-    - echo "Finalizado o deploy."
+    - echo "[$(date '+%d/%m/%Y %H:%M:%S')] [OK] Deploy production finalizado"
 
   after_script:
     - echo "[INFO] Limpando recursos temporários..."
