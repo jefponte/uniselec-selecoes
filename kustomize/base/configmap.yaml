@@ -5,5 +5,5 @@ metadata:
   # namespace será definido pelo kustomization.yaml
 data:
   .env: |
-    MESSAGE="Manutenção! Aguarde, estamos melhorando o serviço."
+    MESSAGE="Serviço Seleções."
     LOG_LEVEL="info"
