@@ -12,8 +12,6 @@ patches:
 - path: patch-deployment.yaml
 - path: patch-ingress.yaml
 
-# Image tag será atualizada dinamicamente pela pipeline
-# Usando: kustomize edit set image ou variável de ambiente
 images:
 - name: dti-registro.unilab.edu.br/unilab/selecoes
   newTag: latest

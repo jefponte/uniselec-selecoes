@@ -12,9 +12,6 @@ patches:
 - path: patch-deployment.yaml
 - path: patch-ingress.yaml
 
-# CRÍTICO: Image tag será atualizada dinamicamente pela pipeline
-# A pipeline usará: kustomize edit set image para substituir a tag
-# Exemplo: kustomize edit set image dti-registro.unilab.edu.br/unilab/selecoes:v1.0.10
 images:
 - name: dti-registro.unilab.edu.br/unilab/selecoes
   newTag: v1.0.1
