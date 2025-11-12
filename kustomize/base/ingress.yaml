@@ -4,7 +4,7 @@ metadata:
   name: selecoes
   annotations:
     kubernetes.io/ingress.class: "haproxy"
-    haproxy.org/check: "true"
+    haproxy.org/check: "false"
     haproxy.org/forwarded-for: "true"
     haproxy.org/load-balance: "roundrobin"
     haproxy.org/proxy-body-size: "0"
