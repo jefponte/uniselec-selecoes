@@ -8,7 +8,7 @@ spec:
   selector:
     matchLabels:
       app: selecoes
-  replicas: 1
+  # replicas: 1 controlado pelo HPA
   template:
     metadata:
       labels:
