@@ -1,39 +1,37 @@
-# Dockerfile for Mapa de Risco da UNILAB
+# Dockerfile for Microservices Application
 #
 # Maintainer: Erivando Sena <erivandosena@gmail.com>
 #
 # Description: Este Dockerfile cria uma imagem para Microsserviço,
-# um aplicativo da Web escrito em React.
+# um aplicativo da Web.
 #
 # Build instructions:
-#   docker build -f ./Dockerfile \
-#     -t dti-registro.unilab.edu.br/unilab/mapaderiscounilab:latest \
-#     --build-arg VERSION=1.0.0 \
-#     --build-arg COMMIT_SHA=$(git rev-parse --short HEAD) \
-#     --no-cache ./source/
-#   docker push dti-registro.unilab.edu.br/unilab/mapaderiscounilab:latest
+#   docker build -f ./Dockerfile \
+#     -t registry.example.com/organization/appmanagementapp:latest \
+#     --build-arg VERSION=1.0.0 \
+#     --build-arg COMMIT_SHA=$(git rev-parse --short HEAD) \
+#     --no-cache ./source/
+#   docker push registry.example.com/organization/appmanagementapp:latest
 #
 # Usage:
-#   docker run -it --rm -d -p 8088:80 --name mapaderisco \
-#     dti-registro.unilab.edu.br/unilab/mapaderiscounilab:latest
-#   docker logs -f --tail --until=2s mapaderisco
-#   docker exec -it mapaderisco bash
-#   docker inspect --format='{{json .Config.Labels}}' \
-#     dti-registro.unilab.edu.br/unilab/mapaderiscounilab:latest | jq .
+#   docker run -it --rm -d -p 8088:80 --name riskapp \
+#     registry.example.com/organization/appmanagementapp:latest
+#   docker logs -f --tail --until=2s riskapp
+#   docker exec -it riskapp bash
+#   docker inspect --format='{{json .Config.Labels}}' \
+#     registry.example.com/organization/appmanagementapp:latest | jq .
 #
 # Dependencies: node:20-bullseye / nginx:1.24
 #
 # Environment variables:
-#   COMMIT_SHA: o hash SHA-1 de um determinado commit do Git.
-#   VERSION: usado na tag de imagem ou como parte dos metadados da mesma.
+#   COMMIT_SHA: o hash SHA-1 de um determinado commit do Git.
+#   VERSION: usado na tag de imagem ou como parte dos metadados da mesma.
 #
 # Notes:
 # - Este Dockerfile assume que o código do aplicativo está localizado
-#   no diretório ./source
-# - O aplicativo pode ser acessado em um navegador da Web em
-#   https://mapaderisco.unilab.edu.br/
-#
+#   no diretório ./source
 # Version: 1.0
+
 
 # Stage de build
 FROM node:20-bullseye AS build
@@ -107,10 +105,8 @@ EXPOSE 80 22
 LABEL \
   org.opencontainers.image.vendor="UNILAB" \
   org.opencontainers.image.title="Official Node image" \
-  org.opencontainers.image.description="Mapa de Gestão de Risco da UNILAB" \
   org.opencontainers.image.version="${VERSION}" \
-  org.opencontainers.image.url="https://mapaderisco.unilab.edu.br/" \
-  org.opencontainers.image.source="http://dti-gitlab.unilab.edu.br/dti/mapaderisco.git" \
+  org.opencontainers.image.source="http://dti-gitlab.unilab.edu.br/" \
   org.opencontainers.image.licenses="N/D" \
   org.opencontainers.image.author="Jeff Ponte" \
   org.opencontainers.image.company="Universidade da Integracao Internacional da Lusofonia Afro-Brasileira (UNILAB)" \

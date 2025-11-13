@@ -3,16 +3,15 @@ kind: Ingress
 metadata:
   name: selecoes
   annotations:
-    kubernetes.io/ingress.class: "haproxy"
     haproxy.org/check: "false"
     haproxy.org/forwarded-for: "true"
     haproxy.org/load-balance: "roundrobin"
-    haproxy.org/proxy-body-size: "0"
     haproxy.org/ssl-redirect: "true"
+    haproxy.org/ssl-redirect-code: "301"
     haproxy.org/websocket: "true"
 spec:
   rules:
-  - host: selecoes-staging.unilab.edu.br
+  - host: dti-app-test-c1.unilab.edu.br # domain development, mudança opcional
     http:
       paths:
       - path: /
