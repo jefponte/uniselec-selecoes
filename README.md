@@ -104,3 +104,12 @@ kubectl apply -f https://github.com/bitnami-labs/sealed-secrets/releases/downloa
 kubeseal -f regcred-secret.yaml -w base/sealed-secret-regcred.yaml --scope cluster-wide
 kubeseal --validate < base/sealed-secret-regcred.yaml
 ```
+### Desprovisionar Deploy
+```sh
+argocd login argocd.unilab.edu.br --username admin --password "pass" --grpc-web
+argocd app list
+kubectl -n argocd patch applicationset APPLICATION-NAME-stg-as --type='merge' -p '{"spec":{"generators":[{"list":{"elements":[]}}]}}'
+argocd app list | grep APPLICATION-NAME-stg
+```
+
+
