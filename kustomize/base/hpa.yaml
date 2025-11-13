@@ -5,8 +5,7 @@ kind: HorizontalPodAutoscaler
 metadata:
   name: selecoes
   annotations:
-    argocd.argoproj.io/compare-options: IgnoreExtraneous
-    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true,RespectIgnoreDifferences=true
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
