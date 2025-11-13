@@ -44,6 +44,8 @@ spec:
           - CreateNamespace=true
           - PruneLast=true
           - ApplyOutOfSyncOnly=true
+          - SkipDryRunOnMissingResource=true
+          - RespectIgnoreDifferences=true
         retry:
           limit: 5
           backoff:
