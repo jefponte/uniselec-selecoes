@@ -11,7 +11,7 @@ resources:
 patches:
 - path: patch-deployment.yaml
 - path: patch-ingress.yaml
-- path: patch-hpa.yaml 
+- path: patch-hpa.yaml
 
 images:
 - name: dti-registro.unilab.edu.br/unilab/selecoes
