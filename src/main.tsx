@@ -12,6 +12,8 @@ import { BrowserRouter } from "react-router-dom";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import "dayjs/locale/pt-br";
+import StagingGateClientOnly from "./StagingGateClientOnly";
+
 
 const container = document.getElementById("root")
 
@@ -19,6 +21,7 @@ if (container) {
   const root = createRoot(container)
 
   root.render(
+    <StagingGateClientOnly>
       <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <Provider store={store}>
           <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pt-br">
@@ -26,6 +29,7 @@ if (container) {
           </LocalizationProvider>
         </Provider>
       </BrowserRouter>
+    </StagingGateClientOnly>
   )
 } else {
   throw new Error(

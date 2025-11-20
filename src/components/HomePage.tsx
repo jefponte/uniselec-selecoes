@@ -35,7 +35,7 @@ export const HomePage: React.FC = () => (
       align="center"
       sx={{ fontWeight: 700, mb: 2 }}
     >
-      Portal Seleções.
+      Portal Seleções
     </Typography>
     <Typography
       variant="h6"
@@ -43,8 +43,7 @@ export const HomePage: React.FC = () => (
       color="text.secondary"
       sx={{ mb: 6 }}
     >
-      Parte do sistema <strong>UniSelec</strong>. Acompanhe e inscreva-se nos processos seletivos de
-      graduação da UNILAB.
+      Acompanhe e inscreva-se nos processos seletivos de graduação da UNILAB.
     </Typography>
 
     {/* Listagem de processos */}
