@@ -378,8 +378,8 @@ build:docker:
       esac
       sed -i "s|^VITE_API_URL=.*|VITE_API_URL=$API_URL|g" .env
       sed -i "s|^VITE_STAGING_ENABLED=.*|VITE_STAGING_ENABLED=$STAGING_ENABLED|g" .env
-      sed -i "s|^VITE_STAGING_SALT=.*|VITE_STAGING_SALT=PaEWqRH3Ih7GeK7pgXKu2g==|g" .env
-      sed -i "s|^VITE_STAGING_HASH=.*|VITE_STAGING_HASH=s2ApJnkTNItZm5e3U8nZbXmIedzf2ud/lZ024sqMQOk=|g" .env
+      sed -i "s|^VITE_STAGING_SALT=.*|VITE_STAGING_SALT=VYB6Csl1x9GNQaP6ngr65Q==|g" .env
+      sed -i "s|^VITE_STAGING_HASH=.*|VITE_STAGING_HASH=2sW0iIdshIcbytUplwpUSuojmDkHBKOS+pFgr/zoiWA=|g" .env
 
       echo "[$(date '+%d/%m/%Y %H:%M:%S')] [OK] .env configurado:"
       cat .env
