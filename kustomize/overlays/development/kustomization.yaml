@@ -15,13 +15,13 @@ patches:
 
 # MERGE com valores específicos de DEVELOPMENT
 configMapGenerator:
-  - name: selecoes-config
-    behavior: merge
-    options:
-      disableNameSuffixHash: true
-    literals:
-      - LOG_LEVEL="debug"
-      - MESSAGE="Serviço Seleções Development"
+- behavior: merge
+  literals:
+  - LOG_LEVEL="debug"
+  - MESSAGE="Serviço Seleções Development"
+  name: selecoes-config
+  options:
+    disableNameSuffixHash: true
 
 images:
 - name: dti-registro.unilab.edu.br/unilab/selecoes
