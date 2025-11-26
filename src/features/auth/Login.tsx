@@ -63,7 +63,7 @@ export const Login = () => {
         if ('data' in response && response.data) {
             enqueueSnackbar(translate("Login successful!").replace(/\.$/, ""), { variant: "success" });
             setIsLoading(false);
-            navigate('/');
+            navigate('/candidate-dashboard');
         } else if ('error' in response && response.error) {
             if ("data" in response.error) {
                 const message = (response.error as any).data?.message || "Login failed.";
