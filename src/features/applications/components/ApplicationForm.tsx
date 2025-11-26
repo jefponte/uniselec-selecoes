@@ -3,7 +3,9 @@ import {
   Box, Grid, TextField, FormControl, Typography, Checkbox,
   FormControlLabel, Autocomplete, RadioGroup, Radio, Button,
   Dialog, DialogActions, DialogContent, DialogContentText,
-  DialogTitle, List, ListItem, InputAdornment
+  DialogTitle, List, ListItem, InputAdornment,
+  Divider,
+  IconButton
 } from '@mui/material';
 import { useState, useEffect, useRef, FormEvent, SyntheticEvent } from 'react';
 import {
@@ -24,6 +26,8 @@ import Tooltip from '@mui/material/Tooltip';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import { forwardRef } from 'react';
 import { IMaskInput } from 'react-imask';
+import EditIcon from '@mui/icons-material/Edit';
+
 
 interface EnemMaskProps {
   onAccept: (value: string) => void;
@@ -52,7 +56,6 @@ export const EnemMask = forwardRef<HTMLInputElement, EnemMaskProps>(
         definitions={{ '#': /\d/ }}
         inputRef={ref}
         overwrite
-        // dispara sempre que o valor está válido segundo a máscara
         onAccept={onAccept}
       />
     );
@@ -164,9 +167,22 @@ export function ApplicationForm({
         <Grid container spacing={3}>
 
           {/* ------------------- DADOS PESSOAIS ------------------- */}
-          <Grid item xs={12}><Typography variant="h6" gutterBottom>Dados Pessoais</Typography></Grid>
+          <Grid item xs={12}>
+            <Box display="flex" alignItems="center" justifyContent="space-between">
+              <Typography variant="h6" gutterBottom>
+                Dados de Registro
+              </Typography>
+              <IconButton
+                size="small"
+                component={Link}
+                to="/profile/edit"
+                aria-label="Editar dados de registro"
+              >
+                <EditIcon fontSize="small" />
+              </IconButton>
+            </Box>
+          </Grid>
 
-          {/* nome / nome social */}
           <Grid item xs={12} md={6}>
             <FormControl fullWidth>
               <TextField
@@ -174,6 +190,45 @@ export function ApplicationForm({
                 value={formState.name || ''} disabled
               />
             </FormControl>
+          </Grid>
+
+
+          {/* e-mail / cpf */}
+          <Grid item xs={12} md={6}>
+            <FormControl fullWidth>
+              <TextField required label="Email" name="email" type="email"
+                value={formState.email || ''} disabled />
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <FormControl fullWidth>
+              <TextField
+                required
+                label="CPF do Candidato"
+                name="cpf"
+                value={formState.cpf || ''}
+                disabled
+                InputProps={{
+                  inputComponent: CPFMask as any,
+                }} />
+            </FormControl>
+          </Grid>
+
+          <Grid item xs={12}><Typography variant="h6" gutterBottom>Dados Pessoais</Typography></Grid><br />
+          {/* nascimento / sexo */}
+          <Grid item xs={12} md={6}>
+
+
+            <FormControl fullWidth>
+              <TextField
+                required type="date" label="Data de Nascimento" name="birthdate"
+                InputLabelProps={{ shrink: true }}
+                value={formState.birthdate || ''}
+                onChange={e => setFormState({ ...formState, birthdate: e.target.value })}
+                disabled={isdisabled}
+              />
+            </FormControl>
+
           </Grid>
           {!showSocialName && (
             <Grid item xs={12} md={6}>
@@ -211,49 +266,6 @@ export function ApplicationForm({
             </Grid>
           )}
 
-          {/* e-mail / cpf */}
-          <Grid item xs={12} md={6}>
-            <FormControl fullWidth>
-              <TextField required label="Email" name="email" type="email"
-                value={formState.email || ''} disabled />
-            </FormControl>
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <FormControl fullWidth>
-              <TextField
-                required
-                label="CPF do Candidato"
-                name="cpf"
-                value={formState.cpf || ''}
-                disabled={isdisabled}
-                InputProps={{
-                  inputComponent: CPFMask as any,
-                }} />
-            </FormControl>
-          </Grid>
-
-          {/* nascimento / sexo */}
-          <Grid item xs={12} md={6}>
-            <FormControl fullWidth>
-              <TextField
-                required type="date" label="Data de Nascimento" name="birthdate"
-                InputLabelProps={{ shrink: true }}
-                value={formState.birthdate || ''}
-                onChange={e => setFormState({ ...formState, birthdate: e.target.value })}
-                disabled={isdisabled}
-              />
-            </FormControl>
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <FormControl fullWidth>
-              <Autocomplete
-                options={['Masculino', 'Feminino', 'Outro']}
-                value={formState.sex ?? null}
-                onChange={(_, v) => setFormState({ ...formState, sex: v as string })}
-                renderInput={p => <TextField {...p} label="Sexo" required />}
-              />
-            </FormControl>
-          </Grid>
 
           {/* telefone / endereço */}
           <Grid item xs={12} md={6}>
@@ -270,6 +282,16 @@ export function ApplicationForm({
                 inputProps={{ maxLength: 15 }}
                 InputProps={{ inputComponent: PhoneMask as any }}
                 disabled={isdisabled}
+              />
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <FormControl fullWidth>
+              <Autocomplete
+                options={['Masculino', 'Feminino', 'Outro']}
+                value={formState.sex ?? null}
+                onChange={(_, v) => setFormState({ ...formState, sex: v as string })}
+                renderInput={p => <TextField {...p} label="Sexo" required />}
               />
             </FormControl>
           </Grid>

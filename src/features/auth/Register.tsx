@@ -1,4 +1,4 @@
-import { Box, Paper, Typography } from "@mui/material";
+import { Box, Grid, Paper, Typography } from "@mui/material";
 import { useSnackbar } from 'notistack';
 import React, { useEffect, useState, ChangeEvent } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -7,6 +7,7 @@ import { RegisterForm } from './components/RegisterForm';
 import { User } from "../../types/User";
 import useTranslate from '../polyglot/useTranslate';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query/react';
+import { Login } from "./Login";
 interface UserForm {
     id?: number;
     name?: string;
@@ -56,22 +57,20 @@ export const Register = () => {
         setIsLoading(true);
         const { name = "", email = "", cpf = "", password = "" } = credentialsForm;
         const credentials: Credentials = { name, email, cpf, password };
-
-        try {
-            const response = await register(credentials).unwrap();
-            enqueueSnackbar("Candidato Registrado Com Sucesso!", { variant: "success" });
-            navigate('/candidate-dashboard');
-        } catch (error: any) {
-            const errorData = error?.data;
-            const errorMessage = errorData?.message || "Erro ao tentar registrar o candidato.";
-        }
-
+        await register(credentials);
     }
 
 
 
     useEffect(() => {
+        if (statusLogin.isSuccess) {
+            enqueueSnackbar("Registro realizado com sucesso!", { variant: "success" });
+            setIsLoading(false);
 
+            if (location.pathname === '/register') {
+                navigate('/candidate-dashboard');
+            }
+        }
         if (statusLogin.error) {
             if ('data' in statusLogin.error) {
                 const errors = (statusLogin.error as { data: { error: { [key: string]: string[] } } }).data.error;

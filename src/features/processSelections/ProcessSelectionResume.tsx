@@ -1,5 +1,5 @@
 // src/features/processSelections/ProcessSelectionResume.tsx
-import { Box, Typography, Grid, Card, CardContent, Tooltip } from "@mui/material";
+import { Box, Typography, Grid, Card, CardContent, Tooltip, Divider } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { ProcessSelection } from "../../types/ProcessSelection";
 import { useGetProcessSelectionsQuery } from "./processSelectionSlice";
@@ -26,12 +26,12 @@ export const ProcessSelectionResume = () => {
   return (
     <Box>
       <ProcessSelectionList
-        title="🔵 Processos Ativos"
+        title="Processos Ativos"
         selections={activeSelections}
         bgColor="grey.200"
       />
       <ProcessSelectionList
-        title="✅ Finalizados"
+        title="Finalizados"
         selections={finishedSelections}
         bgColor="grey.300"
       />
@@ -60,7 +60,7 @@ const ProcessSelectionList = ({
       >
         {title}
       </Typography>
-
+      <Divider sx={{ mb: 2 }} />
       <Grid container spacing={3}>
         {selections.map((selection) => (
           <Grid item xs={12} sm={6} md={4} lg={3} key={selection.id}>
@@ -150,7 +150,7 @@ const ProcessSelectionCard = ({ selection }: { selection: ProcessSelection }) =>
           📄 {(() => {
             const numberDocs = documentsData?.data.filter(doc => doc.status !== 'draft').length || 0;
             return `${numberDocs} ${numberDocs === 1 ? 'Documento' : 'Documentos'}`;
-          })() }
+          })()}
         </Typography>
       </CardContent>
     </Card>

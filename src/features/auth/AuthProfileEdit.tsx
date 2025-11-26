@@ -112,7 +112,7 @@ export function AuthProfileEdit() {
           p={5}
         >
           <Typography component="h1" variant="h5">
-            Alterar Senha
+            Alterar Dados
           </Typography>
         </Box>
         <Box p={3} mb={3}>
