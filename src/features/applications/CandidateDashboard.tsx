@@ -19,9 +19,13 @@ import { useGetApplicationsQuery } from './applicationSlice';
 import { Application } from '../../types/Application';
 import { Login } from '../auth/Login';
 import { RootState } from '../../app/store';
+import { useGetProcessSelectionsQuery } from '../processSelections/processSelectionSlice';
+import { ProcessSelectionResume } from '../processSelections/ProcessSelectionResume';
 
 const CandidateDashboard = () => {
   /* ---------------- auth / logout ---------------- */
+  const { data: processList, isFetching: fetchinProcess, error: errorProcess } = useGetProcessSelectionsQuery({});
+
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const token = useAppSelector((s: RootState) => s.auth.token);
@@ -137,6 +141,7 @@ const CandidateDashboard = () => {
             </Accordion>
           );
         })}
+        <ProcessSelectionResume />
       </Box>
 
       {/* Dialog – placeholder de edição de perfil */}
