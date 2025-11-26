@@ -3,6 +3,5 @@ kind: ConfigMap
 metadata:
   name: selecoes-config
 data:
-  .env: |
-    MESSAGE="Serviço Seleções"
-    LOG_LEVEL="info"
+  LOG_LEVEL: "debug"
+  MESSAGE: "Serviço Seleções"

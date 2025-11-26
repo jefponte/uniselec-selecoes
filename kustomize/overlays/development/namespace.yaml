@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: selecoes-dev
+  labels:
+    environment: development
+    app: selecoes
