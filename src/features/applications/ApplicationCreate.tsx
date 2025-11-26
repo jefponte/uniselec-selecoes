@@ -63,7 +63,7 @@ export const ApplicationCreate = () => {
       navigate('/candidate-dashboard');
     }
     if (status.error) {
-      enqueueSnackbar("Application not created", { variant: "error" });
+      enqueueSnackbar("Falha ao criar inscrição", { variant: "error" });
     }
   }, [enqueueSnackbar, status.error, status.isSuccess, navigate]);
 

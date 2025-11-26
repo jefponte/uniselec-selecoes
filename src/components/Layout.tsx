@@ -50,11 +50,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
           />
         </AppBar>
         <SnackbarProvider
-          autoHideDuration={2000}
+          autoHideDuration={30000}
           maxSnack={3}
           anchorOrigin={{ vertical: "top", horizontal: "right" }}
         >
-          <Container sx={{ color: 'text.primary', mt: 25, mb: 5, flexGrow: 1 }}>
+          <Container sx={{ color: 'text.primary', mt: 15, mb: 5, flexGrow: 1 }}>
             {children}
           </Container>
         </SnackbarProvider>
