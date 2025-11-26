@@ -7,7 +7,6 @@ import { useGetDocumentsByProcessSelectionQuery } from "../documents/documentSli
 
 export const ProcessSelectionResume = () => {
   const { data, isFetching, error } = useGetProcessSelectionsQuery({});
-  const navigate = useNavigate();
 
   if (isFetching) return <Typography>Carregando...</Typography>;
 

@@ -130,7 +130,7 @@ export const ApplicationCard = ({
                       <strong>Curso Pretendido:</strong>{fd.position.name || 'Não informado'}
                     </Typography>
                     <Typography variant="body1">
-                      <strong>Local de Oferta:</strong> {fd.position.academic_unit.name +" - "+ fd.position.academic_unit.state || 'Não informado'}
+                      <strong>Local de Oferta:</strong> {fd.position.academic_unit.name + " - " + fd.position.academic_unit.state || 'Não informado'}
                     </Typography>
                     <Typography variant="body1">
                       <strong>Número de Inscrição do ENEM:</strong> {fd.enem}
@@ -151,7 +151,7 @@ export const ApplicationCard = ({
                 {
                   application.verification_code &&
                   <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-                      <QRCode value={`${window.location.origin}/verificar-comprovante/${application.verification_code}`} size={120} />
+                    <QRCode value={`${window.location.origin}/verificar-comprovante/${application.verification_code}`} size={120} />
                   </Box>
                 }
 
@@ -192,14 +192,17 @@ export const ApplicationCard = ({
         >
           Gerar PDF
         </Button>
-        <Button
-          startIcon={<EditIcon />}
-          variant="contained"
-          color="primary"
-          onClick={onEdit}
-        >
-          Alterar Inscrição
-        </Button>
+
+        {application.in_registration_period && (
+          <Button
+            startIcon={<EditIcon />}
+            variant="contained"
+            color="primary"
+            onClick={onEdit}
+          >
+            Alterar Inscrição
+          </Button>
+        )}
       </Box>
     </>
   );
