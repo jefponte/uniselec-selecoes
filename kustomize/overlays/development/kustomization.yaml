@@ -2,7 +2,7 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 # Define o namespace para todos os recursos
-namespace: selecoes-stg
+namespace: selecoes-dev
 
 resources:
 - ../../base
@@ -13,16 +13,16 @@ patches:
 - path: patch-ingress.yaml
 - path: patch-hpa.yaml
 
-# MERGE com valores específicos de STAGING
+# MERGE com valores específicos de DEVELOPMENT
 configMapGenerator:
   - name: selecoes-config
     behavior: merge
     options:
       disableNameSuffixHash: true
     literals:
-      - LOG_LEVEL="info"
-      - MESSAGE="Serviço Seleções Staging"
+      - LOG_LEVEL="debug"
+      - MESSAGE="Serviço Seleções Development"
 
 images:
 - name: dti-registro.unilab.edu.br/unilab/selecoes
-  newTag: latest
+  newTag: dev
