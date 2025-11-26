@@ -5,9 +5,16 @@ kind: Kustomization
 namespace: selecoes
 
 resources:
-  - configmap.yaml
   - deployment.yaml
   - service.yaml
   - ingress.yaml
   - sealed-secret-regcred.yaml
   - hpa.yaml
+
+# Variáveis COMUNS
+configMapGenerator:
+  - name: selecoes-config
+    options:
+      disableNameSuffixHash: true
+    literals:
+      - LOG_LEVEL="info"

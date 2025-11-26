@@ -55,4 +55,9 @@ Thumbs.db
 dist/
 build/
 
+# Outros
 kustomize/base/secret-regcred.yaml
+passwords-laravel-*.txt
+passwords-mariadb-*.txt
+passwords-regcred.txt
+public-key-cert.pem

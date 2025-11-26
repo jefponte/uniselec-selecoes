@@ -56,20 +56,22 @@ export const Register = () => {
         setIsLoading(true);
         const { name = "", email = "", cpf = "", password = "" } = credentialsForm;
         const credentials: Credentials = { name, email, cpf, password };
-        await register(credentials);
+
+        try {
+            const response = await register(credentials).unwrap();
+            enqueueSnackbar("Candidato Registrado Com Sucesso!", { variant: "success" });
+            navigate('/candidate-dashboard');
+        } catch (error: any) {
+            const errorData = error?.data;
+            const errorMessage = errorData?.message || "Erro ao tentar registrar o candidato.";
+        }
+
     }
 
 
 
     useEffect(() => {
-        if (statusLogin.isSuccess) {
-            enqueueSnackbar("Registro realizado com sucesso!", { variant: "success" });
-            setIsLoading(false);
 
-            if (location.pathname === '/register') {
-                navigate('/candidate-dashboard');
-            }
-        }
         if (statusLogin.error) {
             if ('data' in statusLogin.error) {
                 const errors = (statusLogin.error as { data: { error: { [key: string]: string[] } } }).data.error;

@@ -61,9 +61,6 @@ spec:
         - name: timezone
           mountPath: /etc/timezone
           readOnly: true
-        - name: env-volume
-          mountPath: /app/.env
-          subPath: .env
       volumes:
       - name: localtime
         hostPath:
@@ -73,11 +70,5 @@ spec:
         hostPath:
           path: /etc/timezone
           type: File
-      - name: env-volume
-        configMap:
-          name: selecoes-config
-          items:
-            - key: .env
-              path: .env
       imagePullSecrets:
       - name: regcred

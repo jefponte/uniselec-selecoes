@@ -31,6 +31,7 @@ export interface ApplicationFormData {
   bonus: BonusOption;
   termsAgreement: boolean;
   updated_at?: string;
+
 }
 
 export interface Application {
@@ -42,6 +43,7 @@ export interface Application {
   valid_verification_code: boolean;
   created_at: string | null;
   updated_at: string | null;
+  in_registration_period?: boolean;
 }
 
 export interface Links {
