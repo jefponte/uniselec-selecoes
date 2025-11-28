@@ -40,19 +40,19 @@ export const ApplicationCreate = () => {
     const payload: Application = { ...app, process_selection_id: processSelectionState.id! };
 
     if (applicationState?.id) {
-      await updateApplication(payload);                     // já existe → PUT
+      await updateApplication(payload);
     } else {
-      await createApplication(payload);                     // nova → POST
+      await createApplication(payload);
     }
   };
 
   useEffect(() => {
     if (myAppsData?.data?.length) {
       setApplicationState(myAppsData.data[0]);
-      setShowForm(false);                                   // mostra card primeiro
+      setShowForm(false);
     } else {
       setApplicationState({ form_data: {} } as Application);
-      setShowForm(true);                                    // nenhum registro, já exibe form
+      setShowForm(true);
     }
   }, [myAppsData]);
 
