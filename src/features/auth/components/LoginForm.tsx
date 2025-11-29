@@ -122,7 +122,7 @@ export const LoginForm = ({
                 }}
             >
                 <Typography variant="subtitle1" color="textSecondary" mb={2}>
-                    Entre com seu <b>CPF</b> e <b>Senha</b> para acessar sua conta.
+                    Entre com seu <b>CPF</b> e <b>Senha</b> caso já tenha efetuado o registro.
                 </Typography>
                 <Grid container spacing={3}>
                     {/* === CAMPO CPF (com máscara) === */}
