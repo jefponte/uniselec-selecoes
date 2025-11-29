@@ -26,7 +26,8 @@
         },
         "auth": {
             "The email address has already been taken": " esse email já foi utilizado.",
-            "The email has already been taken": " esse email já foi utilizado.",
+            "The email has already been taken.": " esse email já foi utilizado.",
+            "The cpf has already been taken.": " esse cpf já foi utilizado.",
             "The email has already been taken. (and 1 more error)": " esse email já foi utilizado. E mais um erro.",
             "The promoter code has already been taken": " Esse código de promotor já está em uso",
             "Invalid Email or password": "E-mail ou senha inválidos.",

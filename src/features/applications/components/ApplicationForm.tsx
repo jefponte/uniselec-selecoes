@@ -4,7 +4,6 @@ import {
   FormControlLabel, Autocomplete, RadioGroup, Radio, Button,
   Dialog, DialogActions, DialogContent, DialogContentText,
   DialogTitle, List, ListItem, InputAdornment,
-  Divider,
   IconButton
 } from '@mui/material';
 import { useState, useEffect, useRef, FormEvent, SyntheticEvent } from 'react';
@@ -24,43 +23,7 @@ import PhoneMask from '../../../components/masks/PhoneMask';
 import { CPFMask } from '../../auth/components/LoginForm';
 import Tooltip from '@mui/material/Tooltip';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
-import { forwardRef } from 'react';
-import { IMaskInput } from 'react-imask';
 import EditIcon from '@mui/icons-material/Edit';
-
-
-interface EnemMaskProps {
-  onAccept: (value: string) => void;
-  name: string;
-  year: number | null;
-  length?: number;
-}
-
-export const EnemMask = forwardRef<HTMLInputElement, EnemMaskProps>(
-  ({ onAccept, name, year, length = 11, ...rest }, ref) => {
-    // extrai os 2 últimos dígitos do ano, ou string vazia
-    const prefix = year !== null
-      ? String(year).slice(-2)
-      : '';
-
-    // número de posições restantes após o prefixo
-    const restCount = Math.max(0, length - prefix.length);
-
-    // monta a máscara: prefixo + # repetido para cada posição numérica
-    const mask = prefix + '#'.repeat(restCount);
-
-    return (
-      <IMaskInput
-        {...rest}
-        mask={mask}
-        definitions={{ '#': /\d/ }}
-        inputRef={ref}
-        overwrite
-        onAccept={onAccept}
-      />
-    );
-  }
-);
 
 type Props = {
   application: Application;
@@ -85,7 +48,6 @@ export function ApplicationForm({
     application.form_data ?? ({} as ApplicationFormData),
   );
 
-
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(
     application.form_data?.position ?? null,
   );
@@ -100,12 +62,16 @@ export function ApplicationForm({
   );
   const [confirmOpen, setConfirmOpen] = useState(false);
 
+  // Erro de validação do ENEM
+  const [enemError, setEnemError] = useState<string | null>(null);
+
   useEffect(() => {
     if (isFirstMount.current) {
       isFirstMount.current = false;
       return;
     }
     setFormState(prev => ({ ...prev, enem: '' }));
+    setEnemError(null);
   }, [selectedYear]);
 
   const userAuth = useAppSelector(selectAuthUser);
@@ -141,6 +107,31 @@ export function ApplicationForm({
   /* --------------------------- confirmação / envio ---------------------------- */
   const openConfirm = (e: FormEvent) => {
     e.preventDefault();
+
+    // Validação específica do ENEM antes de abrir o diálogo
+    const enemDigits = (formState.enem || '').replace(/\D/g, '');
+    const yearPrefix = selectedYear !== null ? String(selectedYear).slice(-2) : '';
+
+    if (!selectedYear) {
+      setEnemError('Selecione o ano do ENEM.');
+      return;
+    }
+
+    if (!enemDigits) {
+      setEnemError('Informe o número de inscrição do ENEM.');
+      return;
+    }
+
+    if (enemDigits.length < 2 || enemDigits.slice(0, 2) !== yearPrefix) {
+      setEnemError(`O número de inscrição deve começar com "${yearPrefix}".`);
+      return;
+    }
+
+    if (enemError) {
+      // se ainda há erro, não permite prosseguir
+      return;
+    }
+
     setConfirmOpen(true);
   };
 
@@ -160,6 +151,7 @@ export function ApplicationForm({
 
     handleSubmit(e as unknown as FormEvent<HTMLFormElement>, payload);
   };
+
   /* --------------------------------- render ----------------------------------- */
   return (
     <Box p={2}>
@@ -192,7 +184,6 @@ export function ApplicationForm({
             </FormControl>
           </Grid>
 
-
           {/* e-mail / cpf */}
           <Grid item xs={12} md={6}>
             <FormControl fullWidth>
@@ -214,11 +205,10 @@ export function ApplicationForm({
             </FormControl>
           </Grid>
 
-          <Grid item xs={12}><Typography variant="h6" gutterBottom>Dados Pessoais</Typography></Grid><br />
+          <Grid item xs={12}><Typography variant="h6" gutterBottom>Dados Pessoais</Typography></Grid>
+
           {/* nascimento / sexo */}
           <Grid item xs={12} md={6}>
-
-
             <FormControl fullWidth>
               <TextField
                 required type="date" label="Data de Nascimento" name="birthdate"
@@ -228,8 +218,8 @@ export function ApplicationForm({
                 disabled={isdisabled}
               />
             </FormControl>
-
           </Grid>
+
           {!showSocialName && (
             <Grid item xs={12} md={6}>
               <Button
@@ -266,8 +256,7 @@ export function ApplicationForm({
             </Grid>
           )}
 
-
-          {/* telefone / endereço */}
+          {/* telefone / sexo */}
           <Grid item xs={12} md={6}>
             <FormControl fullWidth>
               <TextField
@@ -295,6 +284,8 @@ export function ApplicationForm({
               />
             </FormControl>
           </Grid>
+
+          {/* endereço */}
           <Grid item xs={12}>
             <FormControl fullWidth>
               <TextField required label="Endereço" name="address"
@@ -363,17 +354,22 @@ export function ApplicationForm({
             </Typography>
           </Grid>
 
+          {/* ano do ENEM */}
           <Grid item xs={12} md={6}>
             <FormControl fullWidth>
               <Autocomplete
                 options={processSelection.allowed_enem_years || []}
                 getOptionLabel={(option) => option.toString()}
                 value={selectedYear}
-                onChange={(_, v) => setSelectedYear(v)}
+                onChange={(_, v) => {
+                  setSelectedYear(v);
+                }}
                 renderInput={p => <TextField {...p} label="Ano do ENEM" required />}
               />
             </FormControl>
           </Grid>
+
+          {/* inscrição do ENEM com validação */}
           {selectedYear && (
             <Grid item xs={12} md={6}>
               <FormControl fullWidth>
@@ -383,21 +379,27 @@ export function ApplicationForm({
                   name="enem"
                   value={formState.enem || ''}
                   disabled={isdisabled}
-                  InputProps={{
-                    inputComponent: EnemMask as any,
-                    inputProps: {
-                      onAccept: (value: string) =>
-                        setFormState(prev => ({ ...prev, enem: value })),
-                      name: 'enem',
-                      year: selectedYear,
-                      length: 11,
-                    },
+                  onChange={e => {
+                    const raw = e.target.value.replace(/\D/g, '');
+                    const limited = raw.slice(0, 15); // até 15 dígitos
+                    setFormState(prev => ({ ...prev, enem: limited }));
+
+                    const prefix = String(selectedYear).slice(-2);
+                    if (limited.length >= 2 && limited.slice(0, 2) !== prefix) {
+                      setEnemError(`O número de inscrição deve começar com "${prefix}".`);
+                    } else {
+                      setEnemError(null);
+                    }
                   }}
+                  error={!!enemError}
+                  helperText={
+                    enemError ||
+                    ''
+                  }
                 />
               </FormControl>
             </Grid>
           )}
-
 
           {/* modalidades */}
           <Grid item xs={12}>
@@ -446,9 +448,7 @@ export function ApplicationForm({
 
           {/* Termos de Responsabilidade */}
           <Grid item xs={12}>
-            <Box borderBottom={1} mb={2}>
-              <Typography variant="h6">Termos de Responsabilidade</Typography>
-            </Box>
+            <Typography variant="h6" mb={2}>Termos de Responsabilidade</Typography>
             <Typography variant="body2" mb={2}>
               1. O candidato deverá ler o Edital, seus anexos e os atos normativos para certificar-se de que preenche todos os requisitos.
             </Typography>
@@ -463,12 +463,18 @@ export function ApplicationForm({
               label="Declaro que li e concordo com os termos de responsabilidade."
             />
           </Grid>
+
           <Grid item xs={12}>
             <Box display="flex" gap={2}>
               <Button variant="contained" component={Link} to="/">
                 Página Inicial
               </Button>
-              <Button type="submit" variant="contained" color="secondary" disabled={isdisabled || isLoading}>
+              <Button
+                type="submit"
+                variant="contained"
+                color="secondary"
+                disabled={isdisabled || isLoading}
+              >
                 {isLoading ? "Loading..." : "Realizar Inscrição"}
               </Button>
             </Box>
@@ -503,7 +509,6 @@ export function ApplicationForm({
             <Typography variant="body1"><strong>Curso Pretendido:</strong> {selectedCourse ? selectedCourse.name : ""}</Typography>
             <Typography variant="body1"><strong>Local de Oferta:</strong> {selectedCourse ? selectedCourse.academic_unit.name : ""}</Typography>
             <Typography variant="body1"><strong>Número de Inscrição do ENEM:</strong> {formState.enem}</Typography>
-
           </Box>
           <Typography variant="body2" mt={2}>
             Curso: {selectedCourse?.name}<br />
@@ -513,9 +518,13 @@ export function ApplicationForm({
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setConfirmOpen(false)}>Cancelar</Button>
-          <Button onClick={sendConfirm} autoFocus
+          <Button
+            onClick={sendConfirm}
+            autoFocus
             disabled={isdisabled || isLoading}
-          >Confirmar</Button>
+          >
+            Confirmar
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>
