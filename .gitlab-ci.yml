@@ -381,9 +381,6 @@ build:docker:
       sed -i "s|^VITE_STAGING_SALT=.*|VITE_STAGING_SALT=VYB6Csl1x9GNQaP6ngr65Q==|g" .env
       sed -i "s|^VITE_STAGING_HASH=.*|VITE_STAGING_HASH=2sW0iIdshIcbytUplwpUSuojmDkHBKOS+pFgr/zoiWA=|g" .env
 
-      echo "[$(date '+%d/%m/%Y %H:%M:%S')] [OK] .env configurado:"
-      cat .env
-
     # BUILD DOCKER
     - |
       echo "[$(date '+%d/%m/%Y %H:%M:%S')] [INFO] Tag da imagem docker"
