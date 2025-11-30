@@ -18,6 +18,7 @@ import { InstitutionalSection } from "./components/InstitutionalSection";
 import { HomePage } from "./components/HomePage";
 import { EnrollmentVerification } from "./features/enrollmentsVerification/components/EnrollmentVerification";
 import { EnrollmentReceipt } from "./features/enrollmentsVerification/components/EnrollmentReceipt";
+import { MaintenancePage } from "./components/MaintenancePage";
 
 
 
@@ -36,9 +37,10 @@ function App() {
     >
       <Layout>
         <Routes>
-          <Route path="/" element={<HomePage />} />
+          {/* <Route path="/" element={<HomePage />} /> */}
+          <Route path="/" element={<MaintenancePage />} />
           <Route path="/process-selections/details/:id" element={<ProcessSelectionDetails />} />
-          <Route path="/candidate-dashboard" element={<CandidateDashboard />} />
+          {/* <Route path="/candidate-dashboard" element={<CandidateDashboard />} /> */}
           <Route path="/applications/create/:id" element={<ApplicationCreate />} />
 
 
