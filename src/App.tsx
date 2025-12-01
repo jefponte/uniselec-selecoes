@@ -37,10 +37,9 @@ function App() {
     >
       <Layout>
         <Routes>
-          {/* <Route path="/" element={<HomePage />} /> */}
-          <Route path="/" element={<MaintenancePage />} />
+          <Route path="/" element={<HomePage />} />
           <Route path="/process-selections/details/:id" element={<ProcessSelectionDetails />} />
-          {/* <Route path="/candidate-dashboard" element={<CandidateDashboard />} /> */}
+          <Route path="/candidate-dashboard" element={<CandidateDashboard />} />
           <Route path="/applications/create/:id" element={<ApplicationCreate />} />
 
 

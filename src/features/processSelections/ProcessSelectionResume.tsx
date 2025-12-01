@@ -25,11 +25,30 @@ export const ProcessSelectionResume = () => {
 
   return (
     <Box>
-      <ProcessSelectionList
-        title="Processos Ativos"
-        selections={activeSelections}
-        bgColor="grey.200"
-      />
+      {/* Se não tiver nenhum processo seletivo ativo, mostra a mensagem */}
+      {activeSelections.length === 0 ? (
+        <Box
+          sx={{
+            mt: 4,
+            p: 4,
+            bgcolor: "grey.100",
+            borderRadius: 2,
+            textAlign: "center",
+          }}
+        >
+          <Typography variant="h6" color="text.secondary">
+            Nenhum processo seletivo aberto no momento.
+          </Typography>
+        </Box>
+      ) : (
+        <ProcessSelectionList
+          title="Processos Ativos"
+          selections={activeSelections}
+          bgColor="grey.200"
+        />
+      )}
+
+      {/* Finalizados continuam aparecendo normalmente */}
       <ProcessSelectionList
         title="Finalizados"
         selections={finishedSelections}
