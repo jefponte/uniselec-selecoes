@@ -33,7 +33,7 @@ const pages: any[] = [
   { name: 'Início', path: '/' },
   { name: 'Institucional', path: '/institucional' },
   { name: 'Sobre', path: '/sobre' },
-  { name: 'Area do Candidato', path: '/candidate-dashboard' },
+  { name: 'Área do Candidato', path: '/candidate-dashboard' },
 ];
 
 const LargeMenu: React.FC<{ handleCloseNavMenu: () => void }> = ({ handleCloseNavMenu }) => {
