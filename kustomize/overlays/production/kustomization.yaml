@@ -25,4 +25,4 @@ configMapGenerator:
 
 images:
 - name: dti-registro.unilab.edu.br/unilab/selecoes
-  newTag: v2.0.0
+  newTag: v3.0.6
