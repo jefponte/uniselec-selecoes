@@ -50,7 +50,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           />
         </AppBar>
         <SnackbarProvider
-          autoHideDuration={3000}
+          autoHideDuration={5000}
           maxSnack={3}
           anchorOrigin={{ vertical: "top", horizontal: "right" }}
         >
