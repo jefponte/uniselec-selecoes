@@ -122,13 +122,17 @@ export function ApplicationForm({
       return;
     }
 
-    if (enemDigits.length < 2 || enemDigits.slice(0, 2) !== yearPrefix) {
+    if (enemDigits.length !== 12) {
+      setEnemError('O número de inscrição do ENEM deve ter exatamente 12 dígitos.');
+      return;
+    }
+
+    if (enemDigits.slice(0, 2) !== yearPrefix) {
       setEnemError(`O número de inscrição deve começar com "${yearPrefix}".`);
       return;
     }
 
     if (enemError) {
-      // se ainda há erro, não permite prosseguir
       return;
     }
 
@@ -381,12 +385,15 @@ export function ApplicationForm({
                   disabled={isdisabled}
                   onChange={e => {
                     const raw = e.target.value.replace(/\D/g, '');
-                    const limited = raw.slice(0, 15); // até 15 dígitos
+                    const limited = raw.slice(0, 12); // limitar exatamente 12
                     setFormState(prev => ({ ...prev, enem: limited }));
 
                     const prefix = String(selectedYear).slice(-2);
-                    if (limited.length >= 2 && limited.slice(0, 2) !== prefix) {
+
+                    if (limited.length === 12 && limited.slice(0, 2) !== prefix) {
                       setEnemError(`O número de inscrição deve começar com "${prefix}".`);
+                    } else if (limited.length > 0 && limited.length < 12) {
+                      setEnemError('O número de inscrição do ENEM deve ter exatamente 12 dígitos.');
                     } else {
                       setEnemError(null);
                     }
