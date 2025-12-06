@@ -15,14 +15,14 @@ patches:
 
 # MERGE com valores específicos de PRODUCTION
 configMapGenerator:
-  - name: selecoes-config
-    behavior: merge
-    options:
-      disableNameSuffixHash: true
-    literals:
-      - LOG_LEVEL="error"
-      - MESSAGE="Serviço Seleções Production"
+- behavior: merge
+  literals:
+  - LOG_LEVEL="error"
+  - MESSAGE="Serviço Seleções Production"
+  name: selecoes-config
+  options:
+    disableNameSuffixHash: true
 
 images:
 - name: dti-registro.unilab.edu.br/unilab/selecoes
-  newTag: v1.0.0
+  newTag: v3.0.9

@@ -124,7 +124,7 @@ H[Secrets Mgmt<br/>SealedSecrets stg-prd<br/>SecretGenerator dev]
 ```sh
 kubectl apply -f https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.33.1/controller.yaml
 kubeseal -f regcred-secret.yaml -w base/sealed-secret-regcred.yaml --scope cluster-wide
-kubeseal --validate < base/sealed-secret-regcred.yaml 
+kubeseal --validate < base/sealed-secret-regcred.yaml
 ```
 ### Desprovisionar Deploy
 ```sh
@@ -149,3 +149,6 @@ argocd app list | grep uniselec-selecoes-dev
                   └─ unit
 ```
 **Ação necessária**: Rodar o Job `staging` da Pipeline GitLab CI/CD GitOps
+
+
+Try pipeline
