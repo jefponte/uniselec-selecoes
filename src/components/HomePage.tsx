@@ -50,7 +50,7 @@ export const HomePage: React.FC = () => (
     <ProcessSelectionResume />
 
     {/* Chama página de verificação do comprovante de inscrição */}
-    <Box sx={{ textAlign: "center", mt: 4 }}>
+    {/* <Box sx={{ textAlign: "center", mt: 4 }}>
       <Button
         component={RouterLink}
         to="/verificar-comprovante"
@@ -60,7 +60,7 @@ export const HomePage: React.FC = () => (
       >
         Verificar comprovante de inscrição
       </Button>
-    </Box>
+    </Box> */}
 
     {/* Chamada secundária */}
     <Box sx={{ textAlign: "center", mt: 4 }}>
