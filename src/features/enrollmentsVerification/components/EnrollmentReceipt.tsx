@@ -69,7 +69,7 @@ export const EnrollmentReceipt: React.FC = () => {
                   <Grid item xs={12} md={12}>
                     <Box>
                       <Typography variant="h5" align="center">
-                        Comprovante de Inscrição válido
+                        Comprovante de Inscrição Válido
                       </Typography>
                       <br />
                       <Typography variant="subtitle1" align="center">
