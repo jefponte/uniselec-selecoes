@@ -75,13 +75,22 @@ export const EnrollmentReceipt: React.FC = () => {
                       <Typography variant="subtitle1" align="center">
                         {enrollmentDetails['edital']}
                       </Typography>
-
                     </Box>
 
 
                   </Grid>
 
-
+                  <Grid item xs={12} md={6}>
+                    <Box sx={{ mt: 2 }}>
+                      <Typography variant="body1">
+                        <strong>Nome Completo:</strong> {enrollmentDetails['name']}
+                      </Typography>
+                      <Typography variant="body1">
+                        <strong>Nome Social:</strong>{' '}
+                        {enrollmentDetails['social_name'] || 'Não informado'}
+                      </Typography>
+                    </Box>
+                  </Grid>
 
                   <Grid item xs={12} md={6}>
                     <Box sx={{ mt: 2 }}>
