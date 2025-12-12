@@ -32,7 +32,7 @@ export const EnrollmentReceipt: React.FC = () => {
       });
     }
   }, [data, isSuccess, isError]);
-  
+
   return (
     <>
       {isFetching ? (
@@ -69,63 +69,22 @@ export const EnrollmentReceipt: React.FC = () => {
                   <Grid item xs={12} md={12}>
                     <Box>
                       <Typography variant="h5" align="center">
-                        COMPROVANTE DE INSCRIÇÃO
+                        Comprovante de Inscrição válido
                       </Typography>
                       <br />
                       <Typography variant="subtitle1" align="center">
-                        EDITAL PROGRAD Nº 12/2024, DE 31 DE JULHO DE 2024
+                        {enrollmentDetails['edital']}
                       </Typography>
-                      <Typography variant="subtitle1" align="center">
-                        PROCESSO SELETIVO UNILAB – (MODELO SISU) - INGRESSO NO PERÍODO
-                        LETIVO 2024.1
-                      </Typography>
+
                     </Box>
+
+
                   </Grid>
+
+
 
                   <Grid item xs={12} md={6}>
                     <Box sx={{ mt: 2 }}>
-                      <Typography variant="body1">
-                        <strong>Nome Completo:</strong> {enrollmentDetails['name']}
-                      </Typography>
-                      <Typography variant="body1">
-                        <strong>Nome Social:</strong>{' '}
-                        {enrollmentDetails['social_name'] || 'Não informado'}
-                      </Typography>
-                      <Typography variant="body1">
-                        <strong>Data de Nascimento: </strong>
-                        {enrollmentDetails['birthdate'] && isValid(parseISO(enrollmentDetails['birthdate']))
-                          ? format(parseISO(enrollmentDetails['birthdate']), 'dd/MM/yyyy', {
-                            locale: ptBR,
-                          })
-                          : 'Data inválida'}
-                      </Typography>
-                      <Typography variant="body1">
-                        <strong>Email:</strong> {enrollmentDetails['email']}
-                      </Typography>
-                      <Typography variant="body1">
-                        <strong>CPF:</strong> {enrollmentDetails['cpf']}
-                      </Typography>
-                      <Typography variant="body1">
-                        <strong>Sexo:</strong> {enrollmentDetails['sex']}
-                      </Typography>
-                      <Typography variant="body1">
-                        <strong>Telefone 1:</strong> {enrollmentDetails['phone']}
-                      </Typography>
-                      <Typography variant="body1">
-                        <strong>Endereço:</strong> {enrollmentDetails['address']}
-                      </Typography>
-                      <Typography variant="body1">
-                        <strong>Cidade-UF:</strong> {enrollmentDetails['city']}-{enrollmentDetails['uf']}
-                      </Typography>
-                    </Box>
-                  </Grid>
-
-                  <Grid item xs={12} md={6}>
-                    <Box sx={{ mt: 2 }}>
-                      <Typography variant="body2">
-                        <strong>Edital:</strong> Edital nº 04/2024 - PROCESSO
-                        SELETIVO UNILAB – PERÍODO LETIVO 2024.1 Curso Medicina
-                      </Typography>
                       <Typography variant="body2">
                         <strong>Curso Pretendido:</strong>{' '}
                         {enrollmentDetails['course']}
@@ -133,10 +92,6 @@ export const EnrollmentReceipt: React.FC = () => {
                       <Typography variant="body2">
                         <strong>Local de Oferta:</strong>{' '}
                         {enrollmentDetails['academic_unit']}
-                      </Typography>
-                      <Typography variant="body2">
-                        <strong>Número de Inscrição do ENEM:</strong>{' '}
-                        {enrollmentDetails['enem']}
                       </Typography>
                     </Box>
                   </Grid>
