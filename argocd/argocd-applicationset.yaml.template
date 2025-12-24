@@ -4,9 +4,13 @@ metadata:
   name: ${APP_NAME}-${DEPLOY_ENV}-as
   namespace: argocd
   labels:
+    app.kubernetes.io/name: ${APP_NAME}
+    app.kubernetes.io/instance: ${APP_NAME}-${DEPLOY_ENV}
+    app.kubernetes.io/component: argocd-applicationset
+    app.kubernetes.io/part-of: ${APP_NAME}
+    app.kubernetes.io/managed-by: argocd
     environment: ${DEPLOY_ENV}
     app: ${APP_NAME}-${DEPLOY_ENV}
-
 spec:
   generators:
     - list:
@@ -16,50 +20,56 @@ spec:
             path: ${KUSTOMIZE_PATH}
             cluster: https://${CLUSTER_REMOTE1_DOMAIN}:6443
             namespace: ${APP_NAMESPACE}
-
   template:
     metadata:
       name: '{{name}}'
       labels:
+        app.kubernetes.io/name: ${APP_NAME}
+        app.kubernetes.io/instance: ${APP_NAME}-${DEPLOY_ENV}
+        app.kubernetes.io/managed-by: argocd
         environment: ${DEPLOY_ENV}
         app: ${APP_NAME}
       annotations:
         argocd.argoproj.io/sync-wave: "0"
-
+        notifications.argoproj.io/subscribe.on-sync-succeeded.slack: gitops-deployments
     spec:
       project: ${APP_NAME}-${DEPLOY_ENV}-ap
-
       source:
         repoURL: '{{repoURL}}'
         targetRevision: ${GIT_BRANCH}
         path: '{{path}}'
-
       destination:
         server: '{{cluster}}'
         namespace: '{{namespace}}'
-
       ignoreDifferences:
-      - group: autoscaling
-        kind: HorizontalPodAutoscaler
-        jsonPointers:
-        - /status
-        - /metadata/annotations/autoscaling.alpha.kubernetes.io~1metrics
+
+        - group: autoscaling
+          kind: HorizontalPodAutoscaler
+          jsonPointers:
+            - /status
+            - /spec/behavior
+            - /metadata/annotations/autoscaling.alpha.kubernetes.io~1current-metrics
+            - /metadata/annotations/autoscaling.alpha.kubernetes.io~1metrics
 
       syncPolicy:
         automated:
           prune: true
           selfHeal: true
+          allowEmpty: false
         syncOptions:
           - CreateNamespace=true
           - PruneLast=true
-          - ApplyOutOfSyncOnly=true
+          - ApplyOutOfSyncOnly=false
+          - Validate=true
           - SkipDryRunOnMissingResource=true
           - RespectIgnoreDifferences=true
-          - ServerSideApply=false
+          - ServerSideApply=true
           - Replace=false
+          - FailOnSharedResource=false
         retry:
-          limit: 10
+          limit: 20
           backoff:
-            duration: 10s
+            duration: 30s
             factor: 2
-            maxDuration: 5m
+            maxDuration: 10m
+      revisionHistoryLimit: 10
