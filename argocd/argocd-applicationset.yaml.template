@@ -68,6 +68,8 @@ spec:
             - /metadata/generation
             - /metadata/managedFields
             - /metadata/annotations/deployment.kubernetes.io~1revision
+          jqPathExpressions:
+            - .spec.template.spec.containers[]?.env[]?.valueFrom?.resourceFieldRef?.divisor
 
         - group: ""
           kind: PersistentVolumeClaim
@@ -152,7 +154,6 @@ spec:
           - Validate=true
           - SkipDryRunOnMissingResource=true
           - RespectIgnoreDifferences=true
-          - ServerSideApply=true
           - Replace=false
           - FailOnSharedResource=false
         retry:
