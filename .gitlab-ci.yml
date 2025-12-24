@@ -40,7 +40,9 @@ variables:
   ARGOCD_SERVER: "argocd.unilab.edu.br"
   CLUSTER_REMOTE1_DOMAIN: "10.130.0.45"
   KUBECONFIG: "/tmp/kubeconfig-${CI_PIPELINE_ID}"
-  ARGOCD_TIMEOUT: "600"
+  ARGOCD_TIMEOUT_DEV: "600"   # 10 minutos
+  ARGOCD_TIMEOUT_STG: "900"   # 15 minutos
+  ARGOCD_TIMEOUT_PRD: "1200"  # 20 minutos
   # Notificação
   MAIL_PRD: "jefponte@unilab.edu.br"
   # Endpoint API
@@ -1014,12 +1016,19 @@ approval:production:
     max: 1
     when:
       - runner_system_failure
+  timeout: 3h
   rules:
     - if: '$CI_COMMIT_TAG =~ /^v[0-9]+\.[0-9]+\.[0-9]+$/'
       when: manual
+      allow_failure: false
+  needs:
+    - job: notification:staging
   script:
     - echo "[$(date '+%d/%m/%Y %H:%M:%S')] [INFO] Production Approval Gate"
     - echo "AGUARDANDO APROVAÇÃO MANUAL PARA PRODUÇÃO"
+  environment:
+    name: production-approval
+    action: prepare
   allow_failure: false
 
 # STAGE 13
