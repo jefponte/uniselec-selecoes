@@ -248,9 +248,27 @@ export const ProcessSelectionDetails = () => {
                         <ListItemText
                           primary={doc.title}
                           secondary={
-                            doc.created_at
-                              ? new Date(doc.created_at).toLocaleString()
-                              : "Data não disponível"
+                            <Box>
+                              {doc.description && (
+                                <Typography
+                                  variant="body2"
+                                  color="text.secondary"
+                                  sx={{ mt: 0.5 }}
+                                >
+                                  {doc.description}
+                                </Typography>
+                              )}
+
+                              <Typography
+                                variant="caption"
+                                color="text.disabled"
+                                sx={{ display: "block", mt: 0.5 }}
+                              >
+                                {doc.created_at
+                                  ? new Date(doc.created_at).toLocaleString("pt-BR")
+                                  : "Data não disponível"}
+                              </Typography>
+                            </Box>
                           }
                         />
                       </ListItemButton>
