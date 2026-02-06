@@ -13,6 +13,13 @@ spec:
     metadata:
       labels:
         app: selecoes
+      annotations:
+        co.elastic.logs/processors.1.add_fields.fields.app_name: "selecoes"
+        co.elastic.logs/processors.1.add_fields.fields.app_framework: "react"
+        co.elastic.logs/processors.1.add_fields.fields.app_type: "frontend_spa"
+        co.elastic.logs/processors.1.add_fields.fields.app_component: "web_ui"
+        co.elastic.logs/processors.1.add_fields.fields.build_tool: "vite"
+        co.elastic.logs/processors.1.add_fields.fields.language: "typescript"
     spec:
       containers:
       - name: selecoes
