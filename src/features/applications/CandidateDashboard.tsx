@@ -21,6 +21,8 @@ import { Login } from '../auth/Login';
 import { RootState } from '../../app/store';
 import { useGetProcessSelectionsQuery } from '../processSelections/processSelectionSlice';
 import { ProcessSelectionResume } from '../processSelections/ProcessSelectionResume';
+import Tooltip from '@mui/material/Tooltip';
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 const CandidateDashboard = () => {
   /* ---------------- auth / logout ---------------- */
@@ -53,6 +55,29 @@ const CandidateDashboard = () => {
 
   if (!isAuthenticated) return <Login />;
 
+  const parseValidDate = (dateStr: string | null): Date | null => {
+    if (!dateStr) return null;
+
+    const date = new Date(dateStr);
+    return Number.isNaN(date.getTime()) ? null : date;
+  };
+
+  const isAfterAppealStartDate = (appealStartDate: string | null): boolean => {
+    const start = parseValidDate(appealStartDate);
+    if (!start) return false;
+
+    const now = new Date();
+    return now >= start; 
+  };
+
+  const isAfterAppealEndDate = (appealEndDate: string | null): boolean => {
+    const end = parseValidDate(appealEndDate);
+    if (!end) return false;
+
+    const now = new Date();
+    return now > end; 
+  };
+
   /* ------------- render ------------- */
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
@@ -60,9 +85,19 @@ const CandidateDashboard = () => {
       <AppBar position="static">
         <Toolbar sx={{ justifyContent: 'space-between' }}>
           <Typography variant="h6">Portal do Candidato</Typography>
-          <Button color="inherit" startIcon={<LogoutIcon />} onClick={doLogout}>
-            Sair
-          </Button>
+          <Box>
+            <Button
+              sx={{ mr: 3 }}
+              color="inherit"
+              startIcon={<ArrowBackIcon />}
+              onClick={() => window.history.back()}
+            >
+              Voltar
+            </Button>
+            <Button color="inherit" startIcon={<LogoutIcon />} onClick={doLogout}>
+              Sair
+            </Button>
+          </Box>
         </Toolbar>
       </AppBar>
 
@@ -93,6 +128,7 @@ const CandidateDashboard = () => {
             </IconButton>
           </Grid>
         </Paper>
+
         <Box sx={{ mt: 4, p: 4, bgcolor: "background.paper", borderRadius: 2 }}>
           {/* Lista de inscrições */}
           <Typography
@@ -138,6 +174,79 @@ const CandidateDashboard = () => {
                         <EditIcon fontSize="small" />
                       </IconButton>
                     </Grid>
+
+
+        {/* Lista de inscrições */}
+        <Typography variant="h6" gutterBottom>Minhas Inscrições</Typography>
+        <Divider sx={{ mb: 2 }} />
+
+        {isFetching && (
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+            <CircularProgress />
+          </Box>
+        )}
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            Não foi possível carregar suas inscrições.
+          </Alert>
+        )}
+
+        {(appsResp?.data ?? []).map((app: Application) => {
+          
+          const fd = app.form_data;
+          const pos = fd.position;
+
+          const processSelection = app.process_selection;
+          const appealStartDate = processSelection.appeal_start_date;
+          const appealEndDate = processSelection.appeal_end_date;
+          const afterAppealStart = isAfterAppealStartDate(appealStartDate);
+          const afterAppealEnd = isAfterAppealEndDate(appealEndDate);
+
+
+
+          const edit = () => navigate(`/applications/create/${app.process_selection_id}`);
+          const appeal = () => navigate(`/appeals/${app.id}`);
+
+          return (
+            <Accordion key={app.id} sx={{ mb: 1, borderRadius: 2 }}>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Grid container spacing={2} alignItems="center">
+                  <Grid item><SchoolIcon fontSize="small" /></Grid>
+                  <Grid item xs>
+                    <Typography>{pos.name}</Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {fd.edital}
+                    </Typography>
+                  </Grid>
+                  <Grid item>
+                    {((afterAppealStart && !afterAppealEnd) || (afterAppealEnd && app.appeal)) && (
+                      <Tooltip
+                        title={
+                          afterAppealStart
+                            ? ""
+                            : `O recurso só pode ser enviado entre 
+                              ${new Date(processSelection.appeal_start_date).toLocaleString("pt-BR")}
+                              e
+                              ${new Date(processSelection.appeal_end_date).toLocaleString("pt-BR")}`
+                        }
+                        disableHoverListener={afterAppealStart}
+                      >
+                        <span>
+                          <Button
+                            variant="outlined"
+                            onClick={appeal}
+                            disabled={!afterAppealStart}
+                            sx={{ mr: 2 }}
+                          >
+                            {!app.appeal ? "Entrar com Recurso" : "Ver Recurso"}
+                          </Button>
+                        </span>
+                      </Tooltip>
+                    )}
+                    <IconButton size="small" onClick={edit}>
+                      <EditIcon fontSize="small" />
+                    </IconButton>
+
                   </Grid>
                 </AccordionSummary>
 
