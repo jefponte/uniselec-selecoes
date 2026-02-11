@@ -1,5 +1,5 @@
 // src/features/processSelections/ProcessSelectionResume.tsx
-import { Box, Typography, Grid, Card, CardContent, Tooltip } from "@mui/material";
+import { Box, Typography, Grid, Card, CardContent, Tooltip, Divider } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { ProcessSelection } from "../../types/ProcessSelection";
 import { useGetProcessSelectionsQuery } from "./processSelectionSlice";
@@ -7,7 +7,6 @@ import { useGetDocumentsByProcessSelectionQuery } from "../documents/documentSli
 
 export const ProcessSelectionResume = () => {
   const { data, isFetching, error } = useGetProcessSelectionsQuery({});
-  const navigate = useNavigate();
 
   if (isFetching) return <Typography>Carregando...</Typography>;
 
@@ -26,13 +25,32 @@ export const ProcessSelectionResume = () => {
 
   return (
     <Box>
+      {/* Se não tiver nenhum processo seletivo ativo, mostra a mensagem */}
+      {activeSelections.length === 0 ? (
+        <Box
+          sx={{
+            mt: 4,
+            p: 4,
+            bgcolor: "grey.100",
+            borderRadius: 2,
+            textAlign: "center",
+          }}
+        >
+          <Typography variant="h6" color="text.secondary">
+            Nenhum processo seletivo aberto no momento.
+          </Typography>
+        </Box>
+      ) : (
+        <ProcessSelectionList
+          title="Processos Ativos"
+          selections={activeSelections}
+          bgColor="grey.200"
+        />
+      )}
+
+      {/* Finalizados continuam aparecendo normalmente */}
       <ProcessSelectionList
-        title="🔵 Processos Ativos"
-        selections={activeSelections}
-        bgColor="grey.200"
-      />
-      <ProcessSelectionList
-        title="✅ Finalizados"
+        title="Finalizados"
         selections={finishedSelections}
         bgColor="grey.300"
       />
@@ -61,7 +79,7 @@ const ProcessSelectionList = ({
       >
         {title}
       </Typography>
-
+      <Divider sx={{ mb: 2 }} />
       <Grid container spacing={3}>
         {selections.map((selection) => (
           <Grid item xs={12} sm={6} md={4} lg={3} key={selection.id}>
@@ -151,7 +169,7 @@ const ProcessSelectionCard = ({ selection }: { selection: ProcessSelection }) =>
           📄 {(() => {
             const numberDocs = documentsData?.data.filter(doc => doc.status !== 'draft').length || 0;
             return `${numberDocs} ${numberDocs === 1 ? 'Documento' : 'Documentos'}`;
-          })() }
+          })()}
         </Typography>
       </CardContent>
     </Card>

@@ -18,6 +18,7 @@ import { InstitutionalSection } from "./components/InstitutionalSection";
 import { HomePage } from "./components/HomePage";
 import { EnrollmentVerification } from "./features/enrollmentsVerification/components/EnrollmentVerification";
 import { EnrollmentReceipt } from "./features/enrollmentsVerification/components/EnrollmentReceipt";
+import { MaintenancePage } from "./components/MaintenancePage";
 import { Appeal } from "./features/appeals/Appeal";
 
 

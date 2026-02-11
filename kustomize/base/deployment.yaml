@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: selecoes
+  labels:
+    app: selecoes
+spec:
+  selector:
+    matchLabels:
+      app: selecoes
+  # replicas: 1 controlado pelo HPA
+  template:
+    metadata:
+      labels:
+        app: selecoes
+    spec:
+      containers:
+      - name: selecoes
+        image: dti-registro.unilab.edu.br/unilab/selecoes:latest
+        imagePullPolicy: Always
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 250m
+            memory: 256Mi
+        ports:
+        - name: http
+          containerPort: 80
+          protocol: TCP
+        envFrom:
+        - configMapRef:
+            name: selecoes-config
+        env:
+        - name: TZ
+          value: "America/Fortaleza"
+        - name: KUBERNETES_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: KUBERNETES_POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: KUBERNETES_CONTAINER_CPU_LIMIT
+          valueFrom:
+            resourceFieldRef:
+              containerName: selecoes
+              resource: limits.cpu
+              divisor: 1m
+        - name: KUBERNETES_CONTAINER_MEMORY_LIMIT
+          valueFrom:
+            resourceFieldRef:
+              containerName: selecoes
+              resource: limits.memory
+        volumeMounts:
+        - name: localtime
+          mountPath: /etc/localtime
+          readOnly: true
+        - name: timezone
+          mountPath: /etc/timezone
+          readOnly: true
+      volumes:
+      - name: localtime
+        hostPath:
+          path: /usr/share/zoneinfo/America/Fortaleza
+          type: File
+      - name: timezone
+        hostPath:
+          path: /etc/timezone
+          type: File
+      imagePullSecrets:
+      - name: regcred

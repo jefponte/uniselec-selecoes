@@ -14,6 +14,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import "dayjs/locale/pt-br";
 import StagingGateClientOnly from "./StagingGateClientOnly";
 
+
 const container = document.getElementById("root")
 
 if (container) {
@@ -28,7 +29,7 @@ if (container) {
           </LocalizationProvider>
         </Provider>
       </BrowserRouter>
-    </StagingGateClientOnly>,
+    </StagingGateClientOnly>
   )
 } else {
   throw new Error(

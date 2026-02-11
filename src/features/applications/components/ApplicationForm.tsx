@@ -3,9 +3,10 @@ import {
   Box, Grid, TextField, FormControl, Typography, Checkbox,
   FormControlLabel, Autocomplete, RadioGroup, Radio, Button,
   Dialog, DialogActions, DialogContent, DialogContentText,
-  DialogTitle, List, ListItem, InputAdornment
+  DialogTitle, List, ListItem, InputAdornment,
+  IconButton
 } from '@mui/material';
-import { useState, useEffect, FormEvent, SyntheticEvent } from 'react';
+import { useState, useEffect, useRef, FormEvent, SyntheticEvent } from 'react';
 import {
   Application, ApplicationFormData
 } from '../../../types/Application';
@@ -22,6 +23,7 @@ import PhoneMask from '../../../components/masks/PhoneMask';
 import { CPFMask } from '../../auth/components/LoginForm';
 import Tooltip from '@mui/material/Tooltip';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import EditIcon from '@mui/icons-material/Edit';
 
 type Props = {
   application: Application;
@@ -38,12 +40,14 @@ export function ApplicationForm({
   processSelection,
   handleSubmit,
 }: Props) {
-  /* -------------------------------- estado base ------------------------------- */
+  const [showSocialName, setShowSocialName] = useState<boolean>(
+    !!application.form_data?.social_name
+  );
+  const isFirstMount = useRef(true);
   const [formState, setFormState] = useState<ApplicationFormData>(
     application.form_data ?? ({} as ApplicationFormData),
   );
 
-  /* --------------------------- estados auxiliares UI --------------------------- */
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(
     application.form_data?.position ?? null,
   );
@@ -58,7 +62,18 @@ export function ApplicationForm({
   );
   const [confirmOpen, setConfirmOpen] = useState(false);
 
-  /* ------------------------------- usuário logado ----------------------------- */
+  // Erro de validação do ENEM
+  const [enemError, setEnemError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isFirstMount.current) {
+      isFirstMount.current = false;
+      return;
+    }
+    setFormState(prev => ({ ...prev, enem: '' }));
+    setEnemError(null);
+  }, [selectedYear]);
+
   const userAuth = useAppSelector(selectAuthUser);
   useEffect(() => {
     if (userAuth)
@@ -70,7 +85,7 @@ export function ApplicationForm({
       }));
   }, [userAuth]);
 
-  /* ----------------------- sincronizações automáticas ------------------------ */
+
   useEffect(() => {
     setFormState(prev => ({
       ...prev,
@@ -92,6 +107,35 @@ export function ApplicationForm({
   /* --------------------------- confirmação / envio ---------------------------- */
   const openConfirm = (e: FormEvent) => {
     e.preventDefault();
+
+    // Validação específica do ENEM antes de abrir o diálogo
+    const enemDigits = (formState.enem || '').replace(/\D/g, '');
+    const yearPrefix = selectedYear !== null ? String(selectedYear).slice(-2) : '';
+
+    if (!selectedYear) {
+      setEnemError('Selecione o ano do ENEM.');
+      return;
+    }
+
+    if (!enemDigits) {
+      setEnemError('Informe o número de inscrição do ENEM.');
+      return;
+    }
+
+    if (enemDigits.length !== 12) {
+      setEnemError('O número de inscrição do ENEM deve ter exatamente 12 dígitos.');
+      return;
+    }
+
+    if (enemDigits.slice(0, 2) !== yearPrefix) {
+      setEnemError(`O número de inscrição deve começar com "${yearPrefix}".`);
+      return;
+    }
+
+    if (enemError) {
+      return;
+    }
+
     setConfirmOpen(true);
   };
 
@@ -111,7 +155,7 @@ export function ApplicationForm({
 
     handleSubmit(e as unknown as FormEvent<HTMLFormElement>, payload);
   };
-  
+
   /* --------------------------------- render ----------------------------------- */
   return (
     <Box p={2}>
@@ -119,32 +163,27 @@ export function ApplicationForm({
         <Grid container spacing={3}>
 
           {/* ------------------- DADOS PESSOAIS ------------------- */}
-          <Grid item xs={12}><Typography variant="h6" gutterBottom>Dados Pessoais</Typography></Grid>
+          <Grid item xs={12}>
+            <Box display="flex" alignItems="center" justifyContent="space-between">
+              <Typography variant="h6" gutterBottom>
+                Dados de Registro
+              </Typography>
+              <IconButton
+                size="small"
+                component={Link}
+                to="/profile/edit"
+                aria-label="Editar dados de registro"
+              >
+                <EditIcon fontSize="small" />
+              </IconButton>
+            </Box>
+          </Grid>
 
-          {/* nome / nome social */}
           <Grid item xs={12} md={6}>
             <FormControl fullWidth>
               <TextField
                 required label="Nome Completo" name="name"
                 value={formState.name || ''} disabled
-              />
-            </FormControl>
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <FormControl fullWidth>
-              <TextField
-                label="Nome Social, conforme Decreto nº 8.727" name="social_name"
-                value={formState.social_name || ''}
-                onChange={e => setFormState({ ...formState, social_name: e.target.value })}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <Tooltip title="DECRETO Nº 8.727, DE 28 DE ABRIL DE 2016. Dispõe sobre o uso do nome social e o reconhecimento da identidade de gênero de pessoas travestis e transexuais no âmbito da administração pública federal direta, autárquica e fundacional.">
-                        <ErrorOutlineIcon />
-                      </Tooltip>
-                    </InputAdornment>
-                  ),
-                }}
               />
             </FormControl>
           </Grid>
@@ -163,12 +202,14 @@ export function ApplicationForm({
                 label="CPF do Candidato"
                 name="cpf"
                 value={formState.cpf || ''}
-                disabled={isdisabled}
+                disabled
                 InputProps={{
                   inputComponent: CPFMask as any,
-                }}/>
+                }} />
             </FormControl>
           </Grid>
+
+          <Grid item xs={12}><Typography variant="h6" gutterBottom>Dados Pessoais</Typography></Grid>
 
           {/* nascimento / sexo */}
           <Grid item xs={12} md={6}>
@@ -182,18 +223,44 @@ export function ApplicationForm({
               />
             </FormControl>
           </Grid>
-          <Grid item xs={12} md={6}>
-            <FormControl fullWidth>
-              <Autocomplete
-                options={['Masculino', 'Feminino', 'Outro']}
-                value={formState.sex ?? null}
-                onChange={(_, v) => setFormState({ ...formState, sex: v as string })}
-                renderInput={p => <TextField {...p} label="Sexo" required />}
-              />
-            </FormControl>
-          </Grid>
 
-          {/* telefone / endereço */}
+          {!showSocialName && (
+            <Grid item xs={12} md={6}>
+              <Button
+                variant="outlined"
+                onClick={() => setShowSocialName(true)}
+              >
+                Adicionar Nome Social
+              </Button>
+            </Grid>
+          )}
+
+          {showSocialName && (
+            <Grid item xs={12} md={6}>
+              <FormControl fullWidth>
+                <TextField
+                  label="Nome Social, conforme Decreto nº 8.727"
+                  name="social_name"
+                  autoComplete="off"
+                  value={formState.social_name || ''}
+                  onChange={e =>
+                    setFormState({ ...formState, social_name: e.target.value })
+                  }
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <Tooltip title="DECRETO Nº 8.727…">
+                          <ErrorOutlineIcon />
+                        </Tooltip>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </FormControl>
+            </Grid>
+          )}
+
+          {/* telefone / sexo */}
           <Grid item xs={12} md={6}>
             <FormControl fullWidth>
               <TextField
@@ -211,6 +278,18 @@ export function ApplicationForm({
               />
             </FormControl>
           </Grid>
+          <Grid item xs={12} md={6}>
+            <FormControl fullWidth>
+              <Autocomplete
+                options={['Masculino', 'Feminino', 'Outro']}
+                value={formState.sex ?? null}
+                onChange={(_, v) => setFormState({ ...formState, sex: v as string })}
+                renderInput={p => <TextField {...p} label="Sexo" required />}
+              />
+            </FormControl>
+          </Grid>
+
+          {/* endereço */}
           <Grid item xs={12}>
             <FormControl fullWidth>
               <TextField required label="Endereço" name="address"
@@ -279,26 +358,55 @@ export function ApplicationForm({
             </Typography>
           </Grid>
 
-          {/* inscrição ENEM + ano */}
-          <Grid item xs={12} md={6}>
-            <FormControl fullWidth>
-              <TextField required label="Número de Inscrição do ENEM" name="enem"
-                value={formState.enem || ''}
-                onChange={e => setFormState({ ...formState, enem: e.target.value })}
-                disabled={isdisabled} />
-            </FormControl>
-          </Grid>
+          {/* ano do ENEM */}
           <Grid item xs={12} md={6}>
             <FormControl fullWidth>
               <Autocomplete
                 options={processSelection.allowed_enem_years || []}
                 getOptionLabel={(option) => option.toString()}
                 value={selectedYear}
-                onChange={(_, v) => setSelectedYear(v)}
+                onChange={(_, v) => {
+                  setSelectedYear(v);
+                }}
                 renderInput={p => <TextField {...p} label="Ano do ENEM" required />}
               />
             </FormControl>
           </Grid>
+
+          {/* inscrição do ENEM com validação */}
+          {selectedYear && (
+            <Grid item xs={12} md={6}>
+              <FormControl fullWidth>
+                <TextField
+                  required
+                  label="Número de Inscrição do ENEM"
+                  name="enem"
+                  value={formState.enem || ''}
+                  disabled={isdisabled}
+                  onChange={e => {
+                    const raw = e.target.value.replace(/\D/g, '');
+                    const limited = raw.slice(0, 12); // limitar exatamente 12
+                    setFormState(prev => ({ ...prev, enem: limited }));
+
+                    const prefix = String(selectedYear).slice(-2);
+
+                    if (limited.length === 12 && limited.slice(0, 2) !== prefix) {
+                      setEnemError(`O número de inscrição deve começar com "${prefix}".`);
+                    } else if (limited.length > 0 && limited.length < 12) {
+                      setEnemError('O número de inscrição do ENEM deve ter exatamente 12 dígitos.');
+                    } else {
+                      setEnemError(null);
+                    }
+                  }}
+                  error={!!enemError}
+                  helperText={
+                    enemError ||
+                    ''
+                  }
+                />
+              </FormControl>
+            </Grid>
+          )}
 
           {/* modalidades */}
           <Grid item xs={12}>
@@ -310,10 +418,12 @@ export function ApplicationForm({
                 .map(cat => (
                   <ListItem key={cat.id}>
                     <FormControlLabel
+                      disabled={cat.name === 'AC'}
                       control={
                         <Checkbox
                           checked={isCatChecked(cat)}
                           onChange={e => toggleCat(cat, e.target.checked)}
+                          disabled={cat.name === 'AC'}
                         />
                       }
                       label={`${cat.description} (${selectedCourse?.vacanciesByCategory?.[cat.name]} vagas)`}
@@ -345,9 +455,7 @@ export function ApplicationForm({
 
           {/* Termos de Responsabilidade */}
           <Grid item xs={12}>
-            <Box borderBottom={1} mb={2}>
-              <Typography variant="h6">Termos de Responsabilidade</Typography>
-            </Box>
+            <Typography variant="h6" mb={2}>Termos de Responsabilidade</Typography>
             <Typography variant="body2" mb={2}>
               1. O candidato deverá ler o Edital, seus anexos e os atos normativos para certificar-se de que preenche todos os requisitos.
             </Typography>
@@ -362,12 +470,18 @@ export function ApplicationForm({
               label="Declaro que li e concordo com os termos de responsabilidade."
             />
           </Grid>
+
           <Grid item xs={12}>
             <Box display="flex" gap={2}>
               <Button variant="contained" component={Link} to="/">
                 Página Inicial
               </Button>
-              <Button type="submit" variant="contained" color="secondary" disabled={isdisabled || isLoading}>
+              <Button
+                type="submit"
+                variant="contained"
+                color="secondary"
+                disabled={isdisabled || isLoading}
+              >
                 {isLoading ? "Loading..." : "Realizar Inscrição"}
               </Button>
             </Box>
@@ -402,7 +516,6 @@ export function ApplicationForm({
             <Typography variant="body1"><strong>Curso Pretendido:</strong> {selectedCourse ? selectedCourse.name : ""}</Typography>
             <Typography variant="body1"><strong>Local de Oferta:</strong> {selectedCourse ? selectedCourse.academic_unit.name : ""}</Typography>
             <Typography variant="body1"><strong>Número de Inscrição do ENEM:</strong> {formState.enem}</Typography>
-
           </Box>
           <Typography variant="body2" mt={2}>
             Curso: {selectedCourse?.name}<br />
@@ -412,7 +525,13 @@ export function ApplicationForm({
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setConfirmOpen(false)}>Cancelar</Button>
-          <Button onClick={sendConfirm} autoFocus>Confirmar</Button>
+          <Button
+            onClick={sendConfirm}
+            autoFocus
+            disabled={isdisabled || isLoading}
+          >
+            Confirmar
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>

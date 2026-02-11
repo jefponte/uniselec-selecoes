@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  react-app:
+    image: ${DOCKER_IMAGE}:${TAG}
+    ports:
+      - "8100:5173"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    env_file: .env  
+    command: ["yarn", "dev"]

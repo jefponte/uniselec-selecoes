@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: selecoes
+spec:
+  template:
+    metadata:
+      labels:
+        environment: production
+    spec:
+      containers:
+        - name: selecoes
+          resources:
+            requests:
+              cpu: 200m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi

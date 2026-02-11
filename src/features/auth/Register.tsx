@@ -1,4 +1,4 @@
-import { Box, Paper, Typography } from "@mui/material";
+import { Box, Grid, Paper, Typography } from "@mui/material";
 import { useSnackbar } from 'notistack';
 import React, { useEffect, useState, ChangeEvent } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -7,6 +7,7 @@ import { RegisterForm } from './components/RegisterForm';
 import { User } from "../../types/User";
 import useTranslate from '../polyglot/useTranslate';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query/react';
+
 interface UserForm {
     id?: number;
     name?: string;
@@ -16,12 +17,14 @@ interface UserForm {
     password?: string;
     confirmPassword?: string;
 }
+
 interface Credentials {
     name: string;
     email: string;
     cpf: string;
     password: string;
 }
+
 export const Register = () => {
     const translate = useTranslate('auth');
     const [register, statusLogin] = useRegisterMutation();
@@ -29,13 +32,6 @@ export const Register = () => {
     const location = useLocation();
     const [isLoading, setIsLoading] = useState(false);
     const { enqueueSnackbar } = useSnackbar();
-
-    const [credentials, setCredentials] = useState<User>({
-        name: "",
-        email: "",
-        cpf: "",
-        password: ""
-    });
 
     const [credentialsForm, setCredentialsForm] = useState<UserForm>({
         name: "",
@@ -54,12 +50,13 @@ export const Register = () => {
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
         setIsLoading(true);
+
         const { name = "", email = "", cpf = "", password = "" } = credentialsForm;
         const credentials: Credentials = { name, email, cpf, password };
+
+        // não usamos unwrap aqui; o erro vai cair em statusLogin.error
         await register(credentials);
     }
-
-
 
     useEffect(() => {
         if (statusLogin.isSuccess) {
@@ -70,9 +67,13 @@ export const Register = () => {
                 navigate('/candidate-dashboard');
             }
         }
+
         if (statusLogin.error) {
-            if ('data' in statusLogin.error) {
-                const errors = (statusLogin.error as { data: { error: { [key: string]: string[] } } }).data.error;
+            const error = statusLogin.error as FetchBaseQueryError;
+
+            // Erros de validação vindos da API (shape conhecido)
+            if ('data' in error && error.data && (error as any).data.error) {
+                const errors = (error.data as { error: { [key: string]: string[] } }).error;
                 if (errors) {
                     Object.entries(errors).forEach(([field, messages]) => {
                         if (Array.isArray(messages)) {
@@ -82,13 +83,23 @@ export const Register = () => {
                         }
                     });
                 }
+            } else {
+                // Fallback: problemas de comunicação (API offline, timeout, DNS, etc.)
+                enqueueSnackbar("Falha de comunicação! Tente novamente mais tarde!", {
+                    variant: "error",
+                });
             }
 
             setIsLoading(false);
         }
-    }, [enqueueSnackbar, statusLogin.error, statusLogin.isSuccess, navigate, location.pathname]);
-
-
+    }, [
+        enqueueSnackbar,
+        statusLogin.error,
+        statusLogin.isSuccess,
+        navigate,
+        location.pathname,
+        translate
+    ]);
 
     return (
         <Box>
@@ -97,12 +108,12 @@ export const Register = () => {
                     Registro
                 </Typography>
                 <RegisterForm
-                    credentials={credentialsForm}
+                    credentials={credentialsForm as User}
                     handleChange={handleChange}
                     handleSubmit={handleSubmit}
                     isLoading={isLoading}
                 />
             </Paper>
         </Box>
-    )
-}
+    );
+};

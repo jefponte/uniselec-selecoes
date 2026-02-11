@@ -1,0 +1,28 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Define o namespace para todos os recursos
+namespace: selecoes-prd
+
+resources:
+- ../../base
+- namespace.yaml
+
+patches:
+- path: patch-deployment.yaml
+- path: patch-ingress.yaml
+- path: patch-hpa.yaml
+
+# MERGE com valores específicos de PRODUCTION
+configMapGenerator:
+  - name: selecoes-config
+    behavior: merge
+    options:
+      disableNameSuffixHash: true
+    literals:
+      - LOG_LEVEL="error"
+      - MESSAGE="Serviço Seleções Production"
+
+images:
+- name: dti-registro.unilab.edu.br/unilab/selecoes
+  newTag: v1.0.0

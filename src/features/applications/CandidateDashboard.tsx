@@ -10,7 +10,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import SchoolIcon from '@mui/icons-material/School';
 import EditIcon from '@mui/icons-material/Edit';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   logOut, selectAuthUser, selectIsAuthenticated,
 } from '../auth/authSlice';
@@ -19,11 +19,15 @@ import { useGetApplicationsQuery } from './applicationSlice';
 import { Application } from '../../types/Application';
 import { Login } from '../auth/Login';
 import { RootState } from '../../app/store';
+import { useGetProcessSelectionsQuery } from '../processSelections/processSelectionSlice';
+import { ProcessSelectionResume } from '../processSelections/ProcessSelectionResume';
 import Tooltip from '@mui/material/Tooltip';
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 const CandidateDashboard = () => {
   /* ---------------- auth / logout ---------------- */
+  const { data: processList, isFetching: fetchinProcess, error: errorProcess } = useGetProcessSelectionsQuery({});
+
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const token = useAppSelector((s: RootState) => s.auth.token);
@@ -106,6 +110,7 @@ const CandidateDashboard = () => {
                 {userAuth?.name?.charAt(0)}
               </Avatar>
             </Grid>
+
             <Grid item xs>
               <Typography variant="h6">{userAuth?.name}</Typography>
               <Typography>{userAuth?.email}</Typography>
@@ -113,8 +118,63 @@ const CandidateDashboard = () => {
                 {userAuth?.cpf}
               </Typography>
             </Grid>
+            <IconButton
+              size="small"
+              component={Link}
+              to="/profile/edit"
+              aria-label="Editar dados de registro"
+            >
+              <EditIcon fontSize="small" />
+            </IconButton>
           </Grid>
         </Paper>
+
+        <Box sx={{ mt: 4, p: 4, bgcolor: "background.paper", borderRadius: 2 }}>
+          {/* Lista de inscrições */}
+          <Typography
+            variant="h5"
+            sx={{ mb: 3, fontWeight: "bold" }}
+            color="text.primary"
+          >
+            Minhas Inscrições
+          </Typography>
+          <Divider sx={{ mb: 2 }} />
+
+          {isFetching && (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+              <CircularProgress />
+            </Box>
+          )}
+          {error && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              Não foi possível carregar suas inscrições.
+            </Alert>
+          )}
+
+          {(appsResp?.data ?? []).map((app: Application) => {
+            const fd = app.form_data;
+            const pos = fd.position;
+            console.log(appsResp);
+            const edit = () => navigate(`/applications/create/${app.process_selection_id}`);
+
+            return (
+
+              <Accordion key={app.id} sx={{ mb: 1, borderRadius: 2 }}>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                  <Grid container spacing={2} alignItems="center">
+                    <Grid item><SchoolIcon fontSize="small" /></Grid>
+                    <Grid item xs>
+                      <Typography>{pos.name}</Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {fd.edital}
+                      </Typography>
+                    </Grid>
+                    <Grid item>
+                      <IconButton size="small" onClick={edit}>
+                        <EditIcon fontSize="small" />
+                      </IconButton>
+                    </Grid>
+
 
         {/* Lista de inscrições */}
         <Typography variant="h6" gutterBottom>Minhas Inscrições</Typography>
@@ -186,26 +246,34 @@ const CandidateDashboard = () => {
                     <IconButton size="small" onClick={edit}>
                       <EditIcon fontSize="small" />
                     </IconButton>
-                  </Grid>
-                </Grid>
-              </AccordionSummary>
 
-              <AccordionDetails>
-                <Typography variant="body2" gutterBottom>
-                  <strong>Enviada em:</strong>{' '}
-                  {new Date(app.created_at!).toLocaleDateString('pt-BR')}
-                </Typography>
-                <Typography variant="body2">
-                  <strong>Campus:</strong> {pos.academic_unit.description}<br />
-                  <strong>Modalidades:</strong>{' '}
-                  {fd.admission_categories.map(c => c.name).join(', ')}<br />
-                  <strong>Bônus:</strong> {fd.bonus ? fd.bonus.name : 'Nenhum'}<br />
-                  <strong>Inscrição ENEM:</strong> {fd.enem} / {fd.enem_year}
-                </Typography>
-              </AccordionDetails>
-            </Accordion>
-          );
-        })}
+                  </Grid>
+                </AccordionSummary>
+
+                <AccordionDetails>
+                  <Typography variant="body2" gutterBottom>
+                    <strong>Enviada em:</strong>{' '}
+                    {new Date(app.created_at!).toLocaleDateString('pt-BR')}
+                  </Typography>
+                  <Typography variant="body2">
+                    <strong>Campus:</strong> {pos.academic_unit.description}<br />
+                    <strong>Modalidades:</strong>{' '}
+                    {fd.admission_categories.map(c => c.name).join(', ')}<br />
+                    <strong>Bônus:</strong> {fd.bonus ? fd.bonus.name : 'Nenhum'}<br />
+                    <strong>Inscrição ENEM:</strong> {fd.enem} / {fd.enem_year}
+                  </Typography>
+                </AccordionDetails>
+              </Accordion>
+
+            );
+          })}
+          {appsResp?.data.length === 0 && !isFetching && (
+            <Alert severity="info">
+              Você ainda não possui inscrições.
+            </Alert>
+          )}
+        </Box>
+        <ProcessSelectionResume />
       </Box>
 
       {/* Dialog – placeholder de edição de perfil */}

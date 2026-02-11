@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: selecoes-config
+data:
+  LOG_LEVEL: "debug"
+  MESSAGE: "Serviço Seleções"
