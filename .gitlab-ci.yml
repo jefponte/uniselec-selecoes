@@ -22,6 +22,8 @@ stages:
 .load_k8s_secrets: &load_k8s_secrets |
   set -euo pipefail
 
+  export ARGOCD_TLS_OPTS="--insecure"
+
   read_secret() {
     kubectl get secret -n "$1" "$2" -o jsonpath="{.data.$3}" | base64 -d
   }
@@ -51,7 +53,7 @@ stages:
     export ARGOCD_TLS_OPTS="--server-crt /tmp/argocd-server.crt"
     echo "[INFO] ArgoCD TLS mode: server-crt"
   else
-    export ARGOCD_TLS_OPTS="${ARGOCD_TLS_OPTS}"
+    export ARGOCD_TLS_OPTS="--insecure"
     echo "[INFO] ArgoCD TLS mode: insecure (default)"
   fi
 
