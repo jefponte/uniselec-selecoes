@@ -365,6 +365,12 @@ tests:sonarqube:
   script:
     - echo "[$(date '+%d/%m/%Y %H:%M:%S')] [INFO] Análise de qualidade SonarQube"
     - |
+      if ! curl -sk --max-time 10 "${SONAR_HOST_URL}/api/system/status" \
+          2>/dev/null | grep -q '"status":"UP"'; then
+        echo "[WARN] SonarQube indisponível em ${SONAR_HOST_URL} — análise ignorada"
+        exit 0
+      fi
+    - |
       sonar-scanner \
         -Dsonar.projectKey=${CI_PROJECT_NAME} \
         -Dsonar.projectName=${CI_PROJECT_NAME} \
