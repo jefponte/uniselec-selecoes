@@ -8,15 +8,21 @@ spec:
   selector:
     matchLabels:
       app: selecoes
-  # replicas: 1 controlado pelo HPA
   template:
     metadata:
       labels:
         app: selecoes
+      annotations:
+        co.elastic.logs/processors.1.add_fields.fields.app_name: "selecoes"
+        co.elastic.logs/processors.1.add_fields.fields.app_framework: "react"
+        co.elastic.logs/processors.1.add_fields.fields.app_type: "frontend_spa"
+        co.elastic.logs/processors.1.add_fields.fields.app_component: "web_ui"
+        co.elastic.logs/processors.1.add_fields.fields.build_tool: "vite"
+        co.elastic.logs/processors.1.add_fields.fields.language: "typescript"
     spec:
       containers:
       - name: selecoes
-        image: dti-registro.unilab.edu.br/unilab/selecoes:latest
+        image: harbor.unilab.edu.br/unilab/selecoes:latest
         imagePullPolicy: Always
         resources:
           requests:
