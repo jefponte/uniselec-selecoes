@@ -1,17 +1,13 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-
 namespace: selecoes-stg
-
 resources:
 - ../../base
 - namespace.yaml
-
 patches:
 - path: patch-deployment.yaml
 - path: patch-ingress.yaml
 - path: patch-hpa.yaml
-
 configMapGenerator:
 - behavior: merge
   literals:
@@ -20,7 +16,6 @@ configMapGenerator:
   name: selecoes-config
   options:
     disableNameSuffixHash: true
-
 images:
 - name: harbor.unilab.edu.br/unilab/selecoes
-  newTag: stg-1be9aaae
+  newTag: stg-ce3ce77d
