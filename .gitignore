@@ -25,9 +25,11 @@ dist-ssr
 .firebase/*
 .env
 
+# TypeScript / Vite
+*.tsbuildinfo
+.eslintcache
+
 # Outros
-kustomize/base/secret-regcred.yaml
-passwords-laravel-*.txt
-passwords-mariadb-*.txt
-passwords-regcred.txt
+kustomize/**/secret-*.yaml
+passwords-*.txt
 public-key-cert.pem

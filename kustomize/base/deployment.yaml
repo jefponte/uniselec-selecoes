@@ -8,7 +8,6 @@ spec:
   selector:
     matchLabels:
       app: selecoes
-  # replicas: 1 controlado pelo HPA
   template:
     metadata:
       labels:
@@ -23,7 +22,7 @@ spec:
     spec:
       containers:
       - name: selecoes
-        image: dti-registro.unilab.edu.br/unilab/selecoes:latest
+        image: harbor.unilab.edu.br/unilab/selecoes:latest
         imagePullPolicy: Always
         resources:
           requests:
