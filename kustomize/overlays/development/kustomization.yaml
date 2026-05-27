@@ -18,4 +18,4 @@ configMapGenerator:
     disableNameSuffixHash: true
 images:
 - name: harbor.unilab.edu.br/unilab/selecoes
-  newTag: dev-26a6c3f5
+  newTag: dev-1e940065
